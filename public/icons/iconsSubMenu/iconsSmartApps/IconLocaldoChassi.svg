@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="49" height="48" viewBox="0 0 49 48">
+  <g id="IconLocaldoChassi" transform="translate(-8859 -5147)">
+    <ellipse id="Elipse_134" data-name="Elipse 134" cx="24.5" cy="24" rx="24.5" ry="24" transform="translate(8859 5147)" fill="#14aa4b"/>
+    <path id="Icon_metro-search" data-name="Icon metro-search" d="M32.463,28.179l-7.307-6.215A3.261,3.261,0,0,0,22.94,21,11.57,11.57,0,1,0,21.645,22.3a3.261,3.261,0,0,0,.962,2.216l6.215,7.307a2.592,2.592,0,1,0,3.641-3.641ZM14.139,21.208A7.712,7.712,0,1,1,21.851,13.5a7.712,7.712,0,0,1-7.712,7.712Z" transform="translate(8865.43 5154.072)" fill="#f6f9fc"/>
+    <path id="Icon_metro-insert-template" data-name="Icon metro-insert-template" d="M7,4.142H8.475V4.88H7Zm2.214,0H10.69V4.88H9.213Zm3.69,0V7.095H10.69V6.356h1.476V4.88h-.738V4.142ZM6.261,6.356H7.737v.738H6.261Zm2.214,0H9.951v.738H8.475ZM4.785,4.88V6.356h.738v.738H4.047V4.142H6.261V4.88ZM7,8.571H8.475v.738H7Zm2.214,0H10.69v.738H9.213Zm3.69,0v2.952H10.69v-.738h1.476V9.309h-.738V8.571ZM6.261,10.785H7.737v.738H6.261Zm2.214,0H9.951v.738H8.475ZM4.785,9.309v1.476h.738v.738H4.047V8.571H6.261v.738Zm8.857-6.643H3.309V13H13.642V2.666Zm.738-.738V13.737H2.571V1.928H14.38Z" transform="translate(8871.391 5159.358)" fill="#f6f9fc"/>
+  </g>
+</svg>
