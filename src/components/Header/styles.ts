@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import * as AvatarPrimitive from '@radix-ui/react-avatar'
 
 export const Container = styled.div`
+  z-index: 999;
   background-color: ${(props) => props.theme.COLORS.WHITE};
   border-bottom: 1px solid ${(props) => props.theme.COLORS.GRAY_100};
   box-shadow: rgba(17, 17, 26, 0.1) 0px 1px 30px;

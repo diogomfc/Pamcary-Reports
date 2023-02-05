@@ -14,19 +14,8 @@ export const Content = styled.div`
   display: flex;
   flex-direction: column;
 
-  /* height: calc(100vh - 10rem);
-    //overflow-y: scroll;
+ 
+  border-right: 1px solid ${({ theme }) => theme.COLORS.GRAY_100};
 
-    ::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background-color: ${(props) => props.theme.COLORS.GRAY_300};
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background-color: transparent;
-    } */
+  
 `

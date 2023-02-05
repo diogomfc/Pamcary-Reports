@@ -17,7 +17,7 @@ function MenuHeaderRelatorios() {
   return (
     <Content>
       <div ref={ref} className="btn" onPointerEnter={() => setOpen(true)}>
-        <Files alt="Histórico Diário" size={20} color="#6B7280" />
+        <Files alt="Relatórios" size={20} color="#6B7280" />
         <span>Relatórios</span>
       </div>
 
