@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 import Link from 'next/link'
+import { useState } from 'react'
 import { Container, Content } from './styles'
 
 interface StepsProps {
@@ -15,6 +16,7 @@ export function StepItem({
   numberIcon,
   path,
 }: StepsProps): JSX.Element {
+
   return (
     <Container>
       <Link href={path}>

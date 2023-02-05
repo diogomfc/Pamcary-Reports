@@ -1,5 +1,5 @@
 import styled,{keyframes} from 'styled-components'
-
+import { motion } from "framer-motion";
 
 const animate = keyframes`
     0% {
@@ -195,17 +195,18 @@ export const Content = styled.div`
       width: 3.4rem;
       border-radius: 50%;
 
-      
       animation: ${AnimateAlerta} 3s infinite;
       
 
       background: ${(props) => props.theme.COLORS.RED};
       border: ${(props) => props.theme.COLORS.RED};
       color: ${(props) => props.theme.COLORS.WHITE};
+
+      box-shadow: ${(props) => props.theme.COLORS.RED} 0px 1px 20px;
     }
 
     .TitleStep {
-      animation: ${AnimateAlerta} 3s infinite;
+      //animation: ${AnimateAlerta} 3s infinite;
       transition: opacity 0.1s;
 
       width: 26rem;

@@ -92,7 +92,7 @@ export function Layout({ children }: ContainerProps) {
             path="/register/#/"
             title="Dos locais do evento"
             numberIcon="13"
-            status="Neutro"
+            status="Correção"
           />
             <StepItem 
             path="/register/#/"

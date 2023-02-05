@@ -2,7 +2,7 @@ import styled,{keyframes} from 'styled-components'
 
 const animate = keyframes`
     0% {
-        transform: translateX(-20px);
+      transform: translateX(0px);
         opacity: 0;
     }
     50%{
