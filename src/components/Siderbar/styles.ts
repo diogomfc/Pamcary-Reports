@@ -25,6 +25,7 @@ export const Title = styled.span`
   display: block;
   font-size: 1.6rem;
   font-weight: 700;
+  color: ${({ theme }) => theme.COLORS.GRAY_300};
 `
 export const HeaderTitle = styled.div`
   display: flex;

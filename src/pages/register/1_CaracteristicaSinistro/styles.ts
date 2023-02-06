@@ -76,12 +76,21 @@ export const TabsTrigger = styled(Tabs.Trigger)`
 `
 
 export const TabsContent = styled(Tabs.Content)`
- display: grid; 
-  //align-items: flex-end;
-  grid-template-columns: 1fr 1fr;
-
-  grid-gap: 1.6rem;
-
-  padding: 1.6rem 0 0 0;
-  margin-left: 0.1rem;
+   
 `
+export const ContentInputsCadastro = styled.div`
+      display: grid; 
+      grid-template-columns: 1fr 1fr;
+
+      grid-gap: 1.6rem;
+
+      padding: 1.6rem 0 1.6rem 0;
+      margin-left: 0.1rem;
+`
+
+
+export const ContentTextEditor = styled.div`
+  display: flex; 
+  //padding: 1.6rem 0 6rem 0;
+  padding: 1.6rem 0 1.6rem 0;
+`; 

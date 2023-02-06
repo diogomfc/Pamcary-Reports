@@ -2,8 +2,7 @@ import { Layout } from "../components/Layout/index";
 import * as Tabs from "@radix-ui/react-tabs";
 
 import styled from "styled-components";
-import { violet, mauve, blackA, green } from '@radix-ui/colors';
-import { GuiaForm } from "@components/Reports/GuiaForm/idenx";
+
 
 export default function App() {
   return (

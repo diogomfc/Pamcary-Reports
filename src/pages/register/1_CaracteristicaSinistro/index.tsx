@@ -4,11 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Bell, FloppyDisk } from "phosphor-react";
 
 import { Layout } from "@components/Layout";
-import { GuiaForm } from "@components/Reports/GuiaForm/idenx";
 import { HeaderReport } from "@components/Reports/HeaderReport";
 import { Heading } from "@components/Reports/Heading";
 import { InputText } from "@components/Reports/TextInput";
 import { ButtonReport } from "@components/Reports/Button";
+import { TextAreaEditor } from "@components/Reports/TextArea";
 
 import {
   Container,
@@ -20,12 +20,14 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
+  ContentTextEditor,
+  ContentInputsCadastro
 } from "./styles";
 
 const schema = z.object({
   seguradora: z
     .string()
-    .min(3, { message: "Precisa ter pelo menos 3 letras." })
+    .min(3, { message: "Precisa ter pelo menos 3 letras. Seguradora" })
     .transform((name) => name.toLowerCase()),
   natureza_do_evento: z
     .string()
@@ -37,8 +39,10 @@ const schema = z.object({
     .transform((name) => name.toLowerCase()),
   valor_da_carga: z
     .string()
-    .min(3, { message: "Precisa ter pelo menos 3 letras." })
+    .min(3, { message: "Precisa ter pelo menos 3 letras. Valor da Carga" })
     .transform((name) => name.toLowerCase()),
+  notas: z
+    .string()
 });
 
 type IFormValues = z.infer<typeof schema>;
@@ -84,7 +88,9 @@ export default function CaracteristicaSinistro() {
                 </TabsTrigger>
               </TabsList>
               <FormReport as="form" onSubmit={handleSubmit(onSubmit)}>
+
                 <TabsContent value="tab1">
+                  <ContentInputsCadastro>
                   <InputText
                     label="Seguradora"
                     name="seguradora"
@@ -125,98 +131,30 @@ export default function CaracteristicaSinistro() {
                         : " "
                     }
                   />
+                  </ContentInputsCadastro>
                 </TabsContent>
 
-                <TabsContent value="tab2">
-                  <InputText
-                    label="Valor da Carga"
-                    name="valor_da_carga"
+                <TabsContent  value="tab2">
+                   <ContentTextEditor>
+                   <TextAreaEditor
+                    name="notas"
+                    placeholder="Digite aqui uma observação..."
                     register={register}
-                    required
+                    required={false}
+                    cols="1010"
+                    rows="15"
                     error={
-                      errors.valor_da_carga
-                        ? errors.valor_da_carga.message
-                        : " "
+                      errors.valor_da_carga 
+                      || errors.carga_embarcada 
+                      || errors.natureza_do_evento 
+                      || errors.seguradora 
+                      ? "Favor verificar campos obrigatórios na guia CADASTRO" 
+                      : " "
                     }
                   />
-                  <InputText
-                    label="Valor da Carga"
-                    name="valor_da_carga"
-                    register={register}
-                    required
-                    error={
-                      errors.valor_da_carga
-                        ? errors.valor_da_carga.message
-                        : " "
-                    }
-                  />
-                  <InputText
-                    label="Valor da Carga"
-                    name="valor_da_carga"
-                    register={register}
-                    required
-                    error={
-                      errors.valor_da_carga
-                        ? errors.valor_da_carga.message
-                        : " "
-                    }
-                  />
-                  <InputText
-                    label="Valor da Carga"
-                    name="valor_da_carga"
-                    register={register}
-                    required
-                    error={
-                      errors.valor_da_carga
-                        ? errors.valor_da_carga.message
-                        : " "
-                    }
-                  />
-                  <InputText
-                    label="Valor da Carga"
-                    name="valor_da_carga"
-                    register={register}
-                    required
-                    error={
-                      errors.valor_da_carga
-                        ? errors.valor_da_carga.message
-                        : " "
-                    }
-                  />
-                  <InputText
-                    label="Valor da Carga"
-                    name="valor_da_carga"
-                    register={register}
-                    required
-                    error={
-                      errors.valor_da_carga
-                        ? errors.valor_da_carga.message
-                        : " "
-                    }
-                  />
-                  <InputText
-                    label="Valor da Carga"
-                    name="valor_da_carga"
-                    register={register}
-                    required
-                    error={
-                      errors.valor_da_carga
-                        ? errors.valor_da_carga.message
-                        : " "
-                    }
-                  />
-                  <InputText
-                    label="Valor da Carga"
-                    name="valor_da_carga"
-                    register={register}
-                    required
-                    error={
-                      errors.valor_da_carga
-                        ? errors.valor_da_carga.message
-                        : " "
-                    }
-                  />
+                   </ContentTextEditor>
                 </TabsContent>
+
                 <ContentButton>
                   <ButtonReport
                     type="submit"
@@ -224,9 +162,11 @@ export default function CaracteristicaSinistro() {
                     Icon={<FloppyDisk size={32} />}
                   />
                 </ContentButton>
+
               </FormReport>
             </TabsRoot>
           </BoxForm>
+
         </Content>
       </Container>
     </Layout>
