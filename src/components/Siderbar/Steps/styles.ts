@@ -154,8 +154,9 @@ export const Content = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-
+    
     gap: 0.8rem;
+
     .CircleStep {
       display: flex;
       align-items: center;
@@ -165,9 +166,13 @@ export const Content = styled.div`
       width: 3.4rem;
       border-radius: 50%;
 
+      animation: ${AnimateAlerta} 3s infinite;
+
       background: ${(props) => props.theme.COLORS.ORANGE};
       border: ${(props) => props.theme.COLORS.ORANGE};
       color: ${(props) => props.theme.COLORS.WHITE};
+
+      box-shadow: ${(props) => props.theme.COLORS.ORANGE} 0px 1px 20px;
     }
 
     .TitleStep {
@@ -191,6 +196,7 @@ export const Content = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
+
       height: 3.4rem;
       width: 3.4rem;
       border-radius: 50%;

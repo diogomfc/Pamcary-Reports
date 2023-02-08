@@ -77,19 +77,20 @@ export default function CaracteristicaSinistro() {
             Subtitle="Preencha os campos abaixo"
           />
           <BoxForm>
-            <TabsRoot defaultValue="tab1">
+            <TabsRoot defaultValue="TabCadastro">
               <TabsList>
-                <TabsTrigger value="tab1">
+                <TabsTrigger value="TabCadastro">
                   <h1>CADASTRO</h1>
                 </TabsTrigger>
 
-                <TabsTrigger value="tab2">
+                <TabsTrigger value="TabNotas">
                   <h1>NOTAS</h1>
                 </TabsTrigger>
               </TabsList>
+              
               <FormReport as="form" onSubmit={handleSubmit(onSubmit)}>
 
-                <TabsContent value="tab1">
+                <TabsContent value="TabCadastro">
                   <ContentInputsCadastro>
                   <InputText
                     label="Seguradora"
@@ -134,7 +135,7 @@ export default function CaracteristicaSinistro() {
                   </ContentInputsCadastro>
                 </TabsContent>
 
-                <TabsContent  value="tab2">
+                <TabsContent  value="TabNotas">
                    <ContentTextEditor>
                    <TextAreaEditor
                     name="notas"

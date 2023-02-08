@@ -20,7 +20,7 @@ export function Layout({ children }: ContainerProps) {
             path="/register/1_CaracteristicaSinistro/"
             title="Característica do Sinistro"
             numberIcon="1"
-            status="Formalização"
+            status="Concluído"
           />
            <StepItem 
             path="/register/#/"
@@ -122,7 +122,7 @@ export function Layout({ children }: ContainerProps) {
             path="/register/#/"
             title="Em análise"
             numberIcon={<HourglassSimpleMedium size={16} />}
-            status="Disabled"
+            status="Análise"
           />
             <StepItem 
             path="/register/#/"
