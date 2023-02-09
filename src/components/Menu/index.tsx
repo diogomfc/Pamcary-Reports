@@ -76,7 +76,7 @@ function MenuHeaderRelatorios() {
 
         <MenuItem className="classMenuItem">
           <div className="contentItem">
-            <Link href="/listaReports">
+            <Link href="/reportList">
               {/* <a> */}
               <div className="content-right">
                 <Image
