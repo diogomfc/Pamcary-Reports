@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-
 import { Header } from "@components/Header";
 import { NoResults } from "@components/noResult";
 
@@ -10,6 +9,7 @@ import { ButtonReport } from "@components/Reports/Button";
 import { ItemList } from "@components/Reports/ItemList";
 import { ListingHeader } from "@components/Reports/ListingHeader";
 import { SearchInput } from "@components/Reports/SearchInput";
+import { Card } from "@components/Reports/Card";
 
 import { usePaginationReports } from "@hooks/usePaginationReports";
 import { useOnSnapshotAllReports } from "@hooks/useFirebase/useOnSnapshotAllReports";
@@ -17,6 +17,7 @@ import { useOnSnapshotUserId } from "@hooks/useFirebase/useOnSnapshotUserId";
 import { useDeleteReportsId } from "@hooks/useFirebase/useDeleteReportsId";
 import { useSearchReport } from "@hooks/useSearchReport";
 
+import { PDFDownloadLink, View } from "@react-pdf/renderer";
 
 import { IReportsV2 } from "src/@types/typesReport";
 
@@ -44,8 +45,6 @@ import {
   Listagem,
   Pagination,
 } from "./styles";
-import { Card } from "@components/Reports/Card";
-
 
 export default function ReportList() {
   const router = useRouter();
@@ -179,6 +178,11 @@ export default function ReportList() {
     }
   }
 
+  //Direcionar para página de gerar pdf
+  function generatePDF(id: string) {
+    router.push(`/reports/pdf/${id}`);
+  }
+
   //Localizar relatório por nome do cliente através do input
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<IReportsV2[]>([]);
@@ -211,7 +215,6 @@ export default function ReportList() {
     // }
   };
 
-
   return (
     <>
       <Header />
@@ -220,14 +223,13 @@ export default function ReportList() {
         {allReportsSnapshot.length > 0 ? (
           <>
             <Content>
-
               <Heading>
                 <ListingHeader
                   title="Relatórios"
                   subTitle="Lista relatórios de averiguação"
                 />
               </Heading>
-         
+
               <Pesquisa>
                 <div className="InputPesquisa">
                   <div
@@ -247,174 +249,216 @@ export default function ReportList() {
                   </div>
                 </div>
                 <div className="ContentCard">
-                <Card
-                  borderColor="#0078BE" 
-                  icon="/img/IconCardFormalizando.svg"
-                  title="Formalizando"
-                  total={allReportsSnapshot.filter((report) => report.status === "Formalizando").length}
-                />
-                <Card
-                  borderColor="#2ECC71" 
-                  icon="/img/IconCardConcluido.svg"
-                  title="Concluídos"
-                  total={allReportsSnapshot.filter((report) => report.status === "Concluído").length}
-                />
                   <Card
-                  borderColor="#FFA807"  
-                  icon="/img/IconCardRevisando.svg"
-                  title="Revisando"
-                  total={allReportsSnapshot.filter((report) => report.status === "Revisando").length}
-                />
-                  <Card 
-                  borderColor="#2ECC71" 
-                  icon="/img/IconCardEmitido.svg"
-                  title="Emitidos"
-                  total={allReportsSnapshot.filter((report) => report.status === "Emitido").length}
-                />
-                  <Card 
-                  borderColor="#F84F6B" 
-                  icon="/img/IconCardCorrecao.svg"
-                  title="Correção"
-                  total={allReportsSnapshot.filter((report) => report.status === "Correção").length}
-                />
+                    //borderColor="#0078BE"
+                    totalColor="#0078BE"
+                    borderColor="#E1E1E6"
+                    icon="/img/IconCardFormalizando.svg"
+                    title="Formalizando"
+                    total={
+                      allReportsSnapshot.filter(
+                        (report) => report.status === "Formalizando"
+                      ).length
+                    }
+                  />
+                  <Card
+                    totalColor="#2ECC71"
+                    borderColor="#E1E1E6"
+                    icon="/img/IconCardConcluido.svg"
+                    title="Concluídos"
+                    total={
+                      allReportsSnapshot.filter(
+                        (report) => report.status === "Concluído"
+                      ).length
+                    }
+                  />
+                  <Card
+                    totalColor="#FFA807"
+                    borderColor="#E1E1E6"
+                    icon="/img/IconCardRevisando.svg"
+                    title="Revisando"
+                    total={
+                      allReportsSnapshot.filter(
+                        (report) => report.status === "Revisando"
+                      ).length
+                    }
+                  />
+                  <Card
+                    totalColor="#2ECC71"
+                    borderColor="#E1E1E6"
+                    icon="/img/IconCardEmitido.svg"
+                    title="Emitidos"
+                    total={
+                      allReportsSnapshot.filter(
+                        (report) => report.status === "Emitido"
+                      ).length
+                    }
+                  />
+                  <Card
+                    totalColor="#F84F6B"
+                    borderColor="#E1E1E6"
+                    icon="/img/IconCardCorrecao.svg"
+                    title="Correção"
+                    total={
+                      allReportsSnapshot.filter(
+                        (report) => report.status === "Correção"
+                      ).length
+                    }
+                  />
                 </div>
               </Pesquisa>
 
               <List>
                 <ContentList className="main-content-result active">
-                  <Status 
-                   onClick={() => {console.log("Filro por status")} }
+                  <Status
+                    onClick={() => {
+                      console.log("Filro por status");
+                    }}
                   >
-                    <h2>STATUS <Funnel size={12} /> </h2>
+                    <h2>
+                      STATUS <Funnel size={12} />{" "}
+                    </h2>
                   </Status>
                   <N_Processo>
-                    <h2>Nº PROCESSO <Funnel size={12} /></h2>
+                    <h2>
+                      Nº PROCESSO <Funnel size={12} />
+                    </h2>
                   </N_Processo>
                   <Data>
-                    <h2>DATA <Funnel size={12} /></h2>
+                    <h2>
+                      DATA <Funnel size={12} />
+                    </h2>
                   </Data>
                   <Responsavel>
-                    <h2>RESPONSÁVEL <Funnel size={12} /></h2>
+                    <h2>
+                      RESPONSÁVEL <Funnel size={12} />
+                    </h2>
                   </Responsavel>
                   <Manager>
-                    <h2>SUPERVISOR <Funnel size={12} /></h2>
+                    <h2>
+                      SUPERVISOR <Funnel size={12} />
+                    </h2>
                   </Manager>
                   <Cliente>
-                    <h2>CLIENTE <Funnel size={12} /></h2>
+                    <h2>
+                      CLIENTE <Funnel size={12} />
+                    </h2>
                   </Cliente>
                   <Acoes>
                     <h2>AÇÕES</h2>
                   </Acoes>
                   <Listagem>
-                    {buscando ? (
-                      searchResults
-                      .slice(pagesVisited, pagesVisited + usersPerPage)
-                      .sort((a, b) => {
-                        return (
-                          new Date(b.created_in).getTime() -
-                          new Date(a.created_in).getTime()
-                        );
-                      })
-                      .map((report) => {
-                        return (
-                          <ItemList
-                            key={report.id}
-                            tagColor={
-                              report.status === "Formalizando"
-                                ? "#0078BE"
-                                : report.status === "Aprovado"
-                                ? "#2ECC71"
-                                : report.status === "Emitido"
-                                ? "#2ECC71"
-                                : report.status === "Revisando"
-                                ? "#FFA807"
-                                : report.status === "Cancelado"
-                                ? "#86061b"
-                                : "#F84F6B"
-                            }
-                            status={report.status}
-                            n_Processo={report.id}
-                            created_at_getTime={
-                              //converte em data e hora no formato brasileiro
-                              new Date(report.created_in).toLocaleString(
-                                "pt-BR",
-                                { timeZone: "UTC" }
-                              )
-                            }
-                            created_at={new Date(
-                              report.created_in
-                            ).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
-                            responsavel={report.user.name}
-                            supervisor={report.manager}
-                            segurado={report.cliente}
-                            n_step={TotalCountStep(report.id)}
-                            //TotalCountStep(report.n_processo)
-                            titleN_step={`Etapa ${TotalCountStep(
-                              report.id
-                            )} de 18`}
-                            qtdCommit={5}
-                            stepsReport={() => Report(report.id)}
-                            deleteReport={() => deleteReportID(report.id)}
-                            linkCommit={() => {}}
-                            resumoReport={() => {}}
-                          />
-                        );
-                      })
-                    ) : (
-                      allReportsSnapshot
-                      .slice(pagesVisited, pagesVisited + usersPerPage)
-                      .sort((a, b) => {
-                        return (
-                          new Date(b.created_in).getTime() -
-                          new Date(a.created_in).getTime()
-                        );
-                      })
-                      .map((report) => {
-                        return (
-                          <ItemList
-                            key={report.id}
-                            tagColor={
-                              report.status === "Formalizando"
-                                ? "#0078BE"
-                                : report.status === "Aprovado"
-                                ? "#2ECC71"
-                                : report.status === "Emitido"
-                                ? "#2ECC71"
-                                : report.status === "Revisando"
-                                ? "#FFA807"
-                                : report.status === "Cancelado"
-                                ? "#86061b"
-                                : "#F84F6B"
-                            }
-                            status={report.status}
-                            n_Processo={report.id}
-                            created_at_getTime={
-                              //converte em data e hora no formato brasileiro
-                              new Date(report.created_in).toLocaleString(
-                                "pt-BR",
-                                { timeZone: "UTC" }
-                              )
-                            }
-                            created_at={new Date(
-                              report.created_in
-                            ).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
-                            responsavel={report.user.name}
-                            supervisor={report.manager}
-                            segurado={report.cliente}
-                            n_step={TotalCountStep(report.id)}
-                            //TotalCountStep(report.n_processo)
-                            titleN_step={`Etapa ${TotalCountStep(
-                              report.id
-                            )} de 18`}
-                            qtdCommit={5}
-                            stepsReport={() => Report(report.id)}
-                            deleteReport={() => deleteReportID(report.id)}
-                            linkCommit={() => {}}
-                            resumoReport={() => {}}
-                          />
-                        );
-                      })
-                    )}
+                    {buscando
+                      ? searchResults
+                          .slice(pagesVisited, pagesVisited + usersPerPage)
+                          .sort((a, b) => {
+                            return (
+                              new Date(b.created_in).getTime() -
+                              new Date(a.created_in).getTime()
+                            );
+                          })
+                          .map((report) => {
+                            return (
+                              <ItemList
+                                key={report.id}
+                                tagColor={
+                                  report.status === "Formalizando"
+                                    ? "#0078BE"
+                                    : report.status === "Aprovado"
+                                    ? "#2ECC71"
+                                    : report.status === "Emitido"
+                                    ? "#2ECC71"
+                                    : report.status === "Revisando"
+                                    ? "#FFA807"
+                                    : report.status === "Cancelado"
+                                    ? "#86061b"
+                                    : "#F84F6B"
+                                }
+                                status={report.status}
+                                n_Processo={report.id}
+                                created_at_getTime={
+                                  //converte em data e hora no formato brasileiro
+                                  new Date(report.created_in).toLocaleString(
+                                    "pt-BR",
+                                    { timeZone: "UTC" }
+                                  )
+                                }
+                                created_at={new Date(
+                                  report.created_in
+                                ).toLocaleDateString("pt-BR", {
+                                  timeZone: "UTC",
+                                })}
+                                responsavel={report.user.name}
+                                supervisor={report.manager}
+                                segurado={report.cliente}
+                                n_step={TotalCountStep(report.id)}
+                                //TotalCountStep(report.n_processo)
+                                titleN_step={`Etapa ${TotalCountStep(
+                                  report.id
+                                )} de 18`}
+                                qtdCommit={5}
+                                stepsReport={() => Report(report.id)}
+                                deleteReport={() => deleteReportID(report.id)}
+                                linkCommit={() => {}}
+                                resumoReport={() => generatePDF(report.id)}
+                              />
+                            );
+                          })
+                      : allReportsSnapshot
+                          .slice(pagesVisited, pagesVisited + usersPerPage)
+                          .sort((a, b) => {
+                            return (
+                              new Date(b.created_in).getTime() -
+                              new Date(a.created_in).getTime()
+                            );
+                          })
+                          .map((report) => {
+                            return (
+                              <ItemList
+                                key={report.id}
+                                tagColor={
+                                  report.status === "Formalizando"
+                                    ? "#0078BE"
+                                    : report.status === "Aprovado"
+                                    ? "#2ECC71"
+                                    : report.status === "Emitido"
+                                    ? "#2ECC71"
+                                    : report.status === "Revisando"
+                                    ? "#FFA807"
+                                    : report.status === "Cancelado"
+                                    ? "#86061b"
+                                    : "#F84F6B"
+                                }
+                                status={report.status}
+                                n_Processo={report.id}
+                                created_at_getTime={
+                                  //converte em data e hora no formato brasileiro
+                                  new Date(report.created_in).toLocaleString(
+                                    "pt-BR",
+                                    { timeZone: "UTC" }
+                                  )
+                                }
+                                created_at={new Date(
+                                  report.created_in
+                                ).toLocaleDateString("pt-BR", {
+                                  timeZone: "UTC",
+                                })}
+                                responsavel={report.user.name}
+                                supervisor={report.manager}
+                                segurado={report.cliente}
+                                n_step={TotalCountStep(report.id)}
+                                //TotalCountStep(report.n_processo)
+                                titleN_step={`Etapa ${TotalCountStep(
+                                  report.id
+                                )} de 18`}
+                                qtdCommit={5}
+                                stepsReport={() => Report(report.id)}
+                                deleteReport={() => deleteReportID(report.id)}
+                                linkCommit={() => {}}
+                                resumoReport={() => generatePDF(report.id)}
+                              />
+                            );
+                          })}
                   </Listagem>
                   <Pagination>
                     <PaginateStyle
@@ -424,7 +468,14 @@ export default function ReportList() {
                       onPageChange={changePage}
                     />
                     <div>
-                      <h1>Total: <span>{buscando ? (searchResults.length):(allReportsSnapshot.length)}</span></h1>
+                      <h1>
+                        Total:{" "}
+                        <span>
+                          {buscando
+                            ? searchResults.length
+                            : allReportsSnapshot.length}
+                        </span>
+                      </h1>
                     </div>
                   </Pagination>
                 </ContentList>

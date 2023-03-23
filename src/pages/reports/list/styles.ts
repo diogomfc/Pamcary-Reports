@@ -347,3 +347,6 @@ export const PaginateStyle = styled(ReactPaginate).attrs({
     cursor: default;
   }
 `;
+
+
+

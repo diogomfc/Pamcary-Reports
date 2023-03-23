@@ -1,7 +1,8 @@
 import styled from "styled-components";
 
 interface IContainerProps {
-  borderColor: string;
+  borderColor?: string;
+  totalColor?: string;
 }
 
 export const Container = styled.div<IContainerProps>`
@@ -44,7 +45,7 @@ export const Content = styled.div<IContainerProps>`
       font-weight: 500;
     }
     h1{
-      color: ${(props) => props.borderColor};
+      color: ${(props) => props.totalColor};
       font-size: 3rem;
       font-weight: bold;
     }

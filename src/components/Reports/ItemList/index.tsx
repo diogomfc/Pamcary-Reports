@@ -1,6 +1,8 @@
 import Image from "next/image";
 import React from "react";
 
+import { PDFDownloadLink} from '@react-pdf/renderer';
+
 import {
   Acoes,
   Container,
@@ -70,6 +72,7 @@ export function ItemList(props: IItemList) {
             />
             <div className="StatusStep">{props.n_step}</div>
           </a>
+
           <a onClick={props.linkCommit}>
             <Image
               width={20}

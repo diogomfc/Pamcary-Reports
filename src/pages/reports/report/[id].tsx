@@ -822,7 +822,7 @@ export default function Report() {
                       </div>
                       <ButtonReport
                         type="button"
-                        //onClick={() => router.push(`/reports/report/${report.id}/pdf`)}
+                        onClick={() => router.push(`/reports/pdf/${report.id}`)}
                         TextTitle="Emitir relatório em PDF"
                         IconLeft={<FilePdf size={32} />}
                         IconRight={<CaretRight size={32} />}
