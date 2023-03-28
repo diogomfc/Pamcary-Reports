@@ -169,6 +169,66 @@ export const ContentInputsCadastro = styled.div`
   margin-left: 0.1rem;
 `;
 
+
+export const ContentInputs = styled.div`
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  
+  grid-gap: 0.5rem;
+  padding: 1.6rem 0 1.6rem 0;
+  margin-left: 0.1rem;
+
+  //background-color: ${({ theme }) => theme.COLORS.GRAY_50};
+
+
+  .input{
+    //background-color: ${({ theme }) => theme.COLORS.RED};
+  }
+
+  ._name{
+    //grid-row: 1 / 3;
+    grid-column: 1 / span 6;
+  }
+
+  ._cnpj{
+    //grid-row: 1 / span 2;
+    grid-column: 7 / span 2;
+  }
+  ._cep{
+    grid-column: 1 / span 1;
+  }
+
+  ._endereco{
+    grid-column: 2 / span 2;
+  }
+
+  ._bairro{
+    grid-column: 4 / span 2;
+  }
+  ._cidade{
+    grid-column: 6 / span 2;
+  }
+  ._uf{
+    grid-column: 8 / span 1;
+  }
+
+  ._contato{
+    grid-column: 1 / span 2;
+  }
+  ._celular{
+    grid-column: 3 / span 2;
+  }
+  ._telefone{
+    grid-column: 5 / span 2;
+  }
+  ._email{
+    grid-column: 7 / span 2;
+  }
+
+`;
+
+
 export const ContentTextEditor = styled.div`
   display: flex;
   //padding: 1.6rem 0 6rem 0;

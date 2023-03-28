@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/router";
 
 import { z } from "zod";
@@ -11,15 +10,12 @@ import { useForm, SubmitHandler } from "react-hook-form";
 
 import { ButtonReport } from "@components/Reports/Button";
 import { Modal } from "@components/Reports/Modal";
-import { SelectInput } from "@components/Reports/SelectInput";
-import { InputText } from "@components/Reports/TextInput";
+import { InputForms } from "../InputForms";
+import { SelectInputForms } from "../SelectInputForms";
 
 import Lottie from "lottie-react";
-import animationLoding1to2 from "../../../../public/lottieFiles/LoadingStep1to2.json";
-import animationUnlockedNextStep from "../../../../public/lottieFiles/UnlockedNextStep.json";
 import LoadingForms from "../../../../public/lottieFiles/LoadingForms.json";
 
-import { useOnSnapshotAllReports } from "@hooks/useFirebase/useOnSnapshotAllReports";
 import { useOnSnapshotUserId } from "@hooks/useFirebase/useOnSnapshotUserId";
 import { useOnSnapshotAllUsers } from "@hooks/useFirebase/useOnSnapshotAllUsers";
 import { usePostReportsUser } from "@hooks/useApi/reports/usePostReportsUser";
@@ -29,13 +25,10 @@ import { IReportsV2, IUsers } from "src/@types/typesReport";
 
 import {
   BackdropSubmitting,
-  BackdropSubmitSuccessful,
   ContainerModalNewReport,
-  ContainerModalProximaEtapa,
   FormReport,
+  ContentInputs,
 } from "./styles";
-
-
 
 interface ModalProps {
   isOpen: boolean;
@@ -48,24 +41,18 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
   //Buscar perfil do usuário logado
   const { userProfile } = useOnSnapshotUserId();
   const { allUsers } = useOnSnapshotAllUsers();
-  const { allReportsSnapshot } = useOnSnapshotAllReports();
-
-   //passar data e hora atual para o campo created_in
   const dateNow = generateDate();
 
   type IFormValues = z.infer<typeof schemaCadastroReport>;
 
   const schemaCadastroReport = z.object({
-    //id: z.string(),
-    cliente: z
-      .string()
-      .min(3, { message: "Precisa informa o nome do Cliente/Segurado" }),
+    cnpj: z.string().min(18, { message: "❗cnpj" }),
+    cliente: z.string(),
+    status: z.string(),
     created_in: z.string().default(dateNow),
     finished_in: z.string(),
-    status: z.string(),
-    manager: z.string(),
     revisor: z.string(),
-    //user: z.string(),
+    manager: z.string(),
   });
 
   const {
@@ -73,7 +60,9 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
     handleSubmit,
     reset,
     formState,
-    formState: { errors},
+    setValue,
+    setFocus,
+    formState: { errors },
   } = useForm<IFormValues>({
     resolver: zodResolver(schemaCadastroReport),
   });
@@ -91,12 +80,7 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
       console.log("Cadastrado efetuado com sucesso");
     }
   }, [isSubmitting, isSubmitSuccessful]);
-  
-   const onClickButton = () => {
-    onClose();
-  };
 
-  //Função para salvar os dados do relatório no banco de dados
   const onSubmit: SubmitHandler<IFormValues> = async (data: IFormValues) => {
     try {
       await usePostReportsUser(data as IReportsV2, userProfile[0] as IUsers);
@@ -105,119 +89,169 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
     }
   };
 
+  const handleBlurCnpj = (e: any) => {
+    const value = e.target.value;
+    const cnpjFormatado = value.replace(/[^\d]+/g, "");
+
+    if (cnpjFormatado?.length < 14) {
+      return;
+    }
+    fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjFormatado}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        setValue("cliente", data?.razao_social);
+        setFocus("status");
+        reset({
+          ...data,
+          cnpj: value,
+        });
+      });
+  };
+
+  const HandleOnClose = () => {
+    onClose();
+    reset(
+      {
+        cnpj: "",
+        cliente: "",
+        status: "",
+        finished_in: "",
+        revisor: "",
+        manager: "",
+      },
+    );
+  };
+
   return (
     <>
-       {isSubmitting && (
-         <BackdropSubmitting>
-         <div>
-           <Lottie
-             style={{ width: "350px", height: "350px" }}
-             animationData={LoadingForms}
-             loop={true}
-             autoplay={true}
-           />
-           <span>Gerando novo relatório. Aguarde...</span>
-         </div>
-       </BackdropSubmitting>
-       )}
+      {isSubmitting && (
+        <BackdropSubmitting>
+          <div>
+            <Lottie
+              style={{ width: "350px", height: "350px" }}
+              animationData={LoadingForms}
+              loop={true}
+              autoplay={true}
+            />
+            <span>Gerando novo relatório. Aguarde...</span>
+          </div>
+        </BackdropSubmitting>
+      )}
       <ContainerModalNewReport>
         <FormReport onSubmit={handleSubmit(onSubmit)}>
           <Modal
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={HandleOnClose}
             iconHeaderModal="/icons/IconsModal/IconAddNewReport.svg"
             titleModal="Novo Relatório"
             descriptionModal="Preencha os campos abaixo para criar um novo relatório."
           >
-            <div className="InputNameCliente">
-              <InputText
-                label="Cliente/Segurado:"
-                name="cliente"
-                register={register}
-                required
-                error={errors.cliente?.message}
-              />
-            </div>
-            <div className="StatusDataPrevisao">
-              <SelectInput
-                options={[
-                  { value: "Formalizando", label: "Formalizando" },
-                  { value: "Revisando", label: "Revisando" },
-                  { value: "Aprovado", label: "Aprovado" },
-                  { value: "Emitido", label: "Emitido" },
-                  { value: "Cancelado", label: "Cancelado" },
-                ]}
-                label="Status Relatório:"
-                name="status"
-                register={register}
-                required
-                error={errors.status?.message}
-              />
-              <InputText
-                label="Data Início:"
-                name="created_in"
-                defaultValue={new Date().toISOString().slice(0, 10)}
-                disabled
-                register={register}
-                required
-                error={errors.created_in?.message}
-                type="date"
-              />
-              <InputText
-                label="Previsão Término:"
-                name="finished_in"
-                register={register}
-                required
-                error={errors.finished_in?.message}
-                type="date"
-              />
-            </div>
-            <div className="UserSupervisor">
-              <SelectInput
-                options={
-                  allUsers
+            <ContentInputs>
+              <div className="_cnpj">
+                <InputForms
+                  onBlur={handleBlurCnpj}
+                  label="⚡️ CNPJ"
+                  name="cnpj"
+                  register={register}
+                  required={true}
+                  error={errors.cnpj ? errors.cnpj.message : " "}
+                />
+              </div>
+              <div className="_cliente">
+                <InputForms
+                  label="CLIENTE/SEGURADO:"
+                  name="cliente"
+                  disabled={false}
+                  register={register}
+                  required={true}
+                  error={errors.cliente ? errors.cliente.message : " "}
+                />
+              </div>
+              <div className="_status">
+                <SelectInputForms
+                  options={[
+                    { value: "Formalizando", label: "Formalizando" },
+                    { value: "Revisando", label: "Revisando" },
+                    { value: "Aprovado", label: "Aprovado" },
+                    { value: "Emitido", label: "Emitido" },
+                    { value: "Cancelado", label: "Cancelado" },
+                  ]}
+                  label="STATUS:"
+                  name="status"
+                  register={register}
+                  required
+                  error={errors.status?.message}
+                />
+              </div>
+              <div className="_created_in">
+                <InputForms
+                  label="DATA DE CRIAÇÃO:"
+                  name="created_in"
+                  defaultValue={new Date().toISOString().slice(0, 10)}
+                  disabled
+                  register={register}
+                  required
+                  error={errors.created_in?.message}
+                  type="date"
+                />
+              </div>
+              <div className="_finished_in">
+                <InputForms
+                  label="PREVISÃO DE ENTREGA:"
+                  name="finished_in"
+                  register={register}
+                  required
+                  error={errors.finished_in?.message}
+                  type="date"
+                />
+              </div>
+              <div className="_user">
+                <div className="Label">ANALISTA RESPONSÁVEL:</div>
+                <div className="TextName">{userProfile[0]?.name}</div>
+              </div>
+              <div className="_revisor">
+                <SelectInputForms
+                  options={allUsers
                     ?.filter((user) => user.perfil === "Revisor")
                     .map((revisor) => {
                       return {
                         value: revisor.name,
                         label: revisor.name,
                       };
-                    })
-                }
-                label="Revisor(a):"
-                name="revisor"
-                register={register}
-                required
-                error={errors.revisor?.message}
-              />
-              <SelectInput
-                options={
-                  allUsers
+                    })}
+                  label="ANALISTA DE REVISÃO:"
+                  name="revisor"
+                  register={register}
+                  required
+                  error={errors.revisor?.message}
+                />
+              </div>
+              <div className="_supervisor">
+                <SelectInputForms
+                  options={allUsers
                     ?.filter((user) => user.perfil === "Supervisor")
-                    .map((supervisor) => {
+                    .map((manager) => {
                       return {
-                        value: supervisor.name,
-                        label: supervisor.name,
+                        value: manager.name,
+                        label: manager.name,
                       };
-                    })
-                }
-                label="Supervisor(a):"
-                name="manager"
-                register={register}
-                required
-                error={errors.manager?.message}
-              />
-            </div>
+                    })}
+                  label="GESTOR RESPONSÁVEL:"
+                  name="manager"
+                  register={register}
+                  required
+                  error={errors.manager?.message}
+                />
+              </div>
+            </ContentInputs>
+
             <div className="ButtonCreateReport">
-            <ButtonReport
-              onClick={onClickButton}
-              TextTitle="Cancelar"
-            />
-              <ButtonReport 
-              type="submit" 
-              TextTitle="Gera Relatório" 
-              IconLeft={<FilePlus size={32} />}
-              IconRight={<CaretRight size={32} />}
+              <ButtonReport
+                type="submit"
+                TextTitle="Gera Relatório"
+                IconLeft={<FilePlus size={32} />}
+                IconRight={<CaretRight size={32} />}
               />
             </div>
           </Modal>

@@ -16,6 +16,7 @@ export interface IReportsV2 {
   status: string;
   manager: string;
   cliente: string;
+  cnpj: string;
   revisor: string;
   user: IUsers;
   step1_Cliente_Segurado?: I1_Cliente_Segurado;
@@ -43,12 +44,13 @@ export interface I1_Cliente_Segurado{
   status: string;
   cliente: string;
   cnpj: string;
-  endereco: string;
+  logradouro: string; //endereco
   bairro: string;
-  cidade: string;
-  estado: string;
+  localidade: string; //cidade
+  uf: string; // estado
   cep: string;
   telefone: string;
+  celular: string;
   email: string;
   contato: string;
   notas: string;

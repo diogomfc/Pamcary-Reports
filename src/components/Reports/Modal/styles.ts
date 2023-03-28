@@ -14,7 +14,9 @@ const animate = keyframes`
     }
 `;
 
-export const Container = styled.div``;
+export const Container = styled.div`
+
+`;
 
 export const Backdrop = styled.div`
   display: flex;
@@ -24,20 +26,23 @@ export const Backdrop = styled.div`
   position: absolute;
   top: 0;
   left: 0;
+
   width: 100%;
-  height: 100vh;
+  height: 122vh;
+
+  padding-bottom: 35rem;
   background: rgba(0, 0, 0, 0.5);
   z-index: 9999;
 `
 export const ContentModal = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 18rem 1fr;
+  //grid-template-rows: 18rem 1fr;
 
-
+ 
   grid-template-areas:
    "HEADER"
-   "BODY"
+   /* "BODY" */
    ;
 
   background: ${props => props.theme.COLORS.WHITE};
@@ -82,7 +87,7 @@ export const CloseModal = styled.button`
 `
 
 export const BodyModal = styled.div`
-  grid-area: BODY;
+  //grid-area: BODY;
 
   animation: ${animate} 1s;
 `

@@ -741,17 +741,18 @@ export default function Report() {
                       reportId={report.id}
                       n_processo={report.id}
                       cliente={report.cliente}
-                      cnpj={report.step1_Cliente_Segurado?.cnpj as string}
-                      endereco={
-                        report.step1_Cliente_Segurado?.endereco as string
+                      cnpj={report.cnpj}
+                      logradouro={
+                        report.step1_Cliente_Segurado?.logradouro as string
                       }
                       bairro={report.step1_Cliente_Segurado?.bairro as string}
-                      cidade={report.step1_Cliente_Segurado?.cidade as string}
-                      estado={report.step1_Cliente_Segurado?.estado as string}
+                      localidade={report.step1_Cliente_Segurado?.localidade as string}
+                      uf={report.step1_Cliente_Segurado?.uf as string}
                       cep={report.step1_Cliente_Segurado?.cep as string}
                       telefone={
                         report.step1_Cliente_Segurado?.telefone as string
                       }
+                      celular={report.step1_Cliente_Segurado?.celular as string}
                       email={report.step1_Cliente_Segurado?.email as string}
                       contato={report.step1_Cliente_Segurado?.contato as string}
                       status={report.step1_Cliente_Segurado?.status as string}
