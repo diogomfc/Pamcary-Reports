@@ -33,6 +33,7 @@ import { StepItem } from "@components/Siderbar/Steps";
 
 import Step1_Cliente_Segurado from "@components/Reports/Forms/Step1_Cliente_Segurado";
 import Step2_Caracteristica_Sinistro from "@components/Reports/Forms/Step2_Caracteristica";
+import Step3_Cronologia_Sinistro2 from "@components/Reports/Forms/Step3_Cronologia_Sinistro";
 
 import {
   Container,
@@ -68,7 +69,7 @@ export default function Report() {
       <LayoutContainer>
         <SidebarSteps>
           <StepItem
-            title="Cliente/Segurado"
+            title="Cliente Segurado"
             numberIcon="1"
             active={numberStep === "1" ? "Active" : " "}
             onStepNumber={() => {
@@ -707,9 +708,8 @@ export default function Report() {
             return (
               <Container key={report.id}>
                 <HeaderReport
-                  title="Relatório de Averiguação"
+                  title={report.cliente}
                   n_processo={report.id}
-                  cliente={report.cliente}
                   status_relatorio={report.status}
                   statusIcon={
                     report.status === "Formalizando" ? (
@@ -727,10 +727,8 @@ export default function Report() {
                   data_inicio_relatorio={new Date(
                     report.created_in
                   ).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
-                  data_prevista_termino_relatorio={new Date(
-                    report.created_in
-                  ).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
                   relatorio_criado_por={report.user.name}
+                  revisado_por={report.revisor}
                   supervisor_responsavel={report.manager}
                 />
 
@@ -746,7 +744,9 @@ export default function Report() {
                         report.step1_Cliente_Segurado?.logradouro as string
                       }
                       bairro={report.step1_Cliente_Segurado?.bairro as string}
-                      localidade={report.step1_Cliente_Segurado?.localidade as string}
+                      localidade={
+                        report.step1_Cliente_Segurado?.localidade as string
+                      }
                       uf={report.step1_Cliente_Segurado?.uf as string}
                       cep={report.step1_Cliente_Segurado?.cep as string}
                       telefone={
@@ -783,6 +783,53 @@ export default function Report() {
                       }
                       notas={
                         report.step2_Caracteristica_Sinistro?.notas as string
+                      }
+                    />
+                  ) : numberStep === "3" ? (
+                    <Step3_Cronologia_Sinistro2
+                      reportId={report.id}
+                      n_processo={report.id}
+                      status={
+                        report.step3_Cronologia_Sinistro?.status as string
+                      }
+                      notas={
+                        report.step3_Cronologia_Sinistro?.notas as string
+                      }
+                      cep_sinistro={
+                        report.step3_Cronologia_Sinistro?.cep_sinistro as string
+                      }
+                      logradouro_sinistro={
+                        report.step3_Cronologia_Sinistro?.logradouro_sinistro as string
+                      }
+                      bairro_sinistro={
+                        report.step3_Cronologia_Sinistro?.bairro_sinistro as string
+                      }
+                      localidade_sinistro={
+                        report.step3_Cronologia_Sinistro?.localidade_sinistro as string
+                      }
+                      uf_sinistro={
+                        report.step3_Cronologia_Sinistro?.uf_sinistro as string
+                      }
+                      data_hora_sinistro={
+                        report.step3_Cronologia_Sinistro?.data_hora_sinistro as string
+                      }
+                      data_hora_comunicacao_cia={
+                        report.step3_Cronologia_Sinistro
+                          ?.data_hora_comunicacao_cia as string
+                      }
+                      data_hora_acionamento_agente={
+                        report.step3_Cronologia_Sinistro
+                          ?.data_hora_acionamento_agente as string
+                      }
+                      data_hora_chegada_agente={
+                        report.step3_Cronologia_Sinistro
+                          ?.data_hora_chegada_agente as string
+                      }
+                      agente_acionado={
+                        report.step3_Cronologia_Sinistro?.agente_acionado as string
+                      }
+                      comunicante={
+                        report.step3_Cronologia_Sinistro?.comunicante as string
                       }
                     />
                   ) : numberStep === "18" ? (

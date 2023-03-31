@@ -1,23 +1,32 @@
-import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  useForm,
+  SubmitHandler,
+  Controller,
+  UseFormRegister,
+} from "react-hook-form";
+import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
 
-import { useForm, SubmitHandler } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { CaretRight, FloppyDisk, HourglassSimpleMedium } from "phosphor-react";
+import { CaretRight, FloppyDisk, NotePencil } from "phosphor-react";
+
+import Lottie from "lottie-react";
+import animationLoding1to2 from "../../../../../public/lottieFiles/LoadingStep1to2.json";
 
 import { Heading } from "@components/Reports/Heading";
-import { InputText } from "@components/Reports/TextInput";
 import { ButtonReport } from "@components/Reports/Button";
 import { TextAreaEditor } from "@components/Reports/TextArea";
+import { InputForms } from "@components/Reports/InputForms";
+import { NewSelect2, NewSelect3 } from "@components/Reports/NewSelect2";
 
-import { I2_Caracteristica_SinistroV2 } from "src/@types/typesReport";
-
-//GET, POST, PUT
-import { useOnSnapshotReportsId } from "@hooks/useFirebase/useOnSnapshotReportsId";
 import { usePostStep2ReportId } from "@hooks/useApi/step2/usePostStep2ReportId";
-import { useUpdateStep2ReportId } from "@hooks/useApi/step2/useUpdateStep2ReportId";
+import { usePostStep3ReportId } from "@hooks/useApi/step3/usePostStep3ReportId";
+
+import { I2_Caracteristica_Sinistro } from "src/@types/typesReport";
+import { I3_Cronologia_Sinistro } from "src/@types/typesReport";
 
 import {
   Container,
@@ -29,15 +38,22 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
-  ContentTextEditor,
   ContentInputsCadastro,
+  ContentTextEditor,
+  BackdropSubmitting,
 } from "./styles";
+
+interface IOption {
+  readonly value: string;
+  readonly label: string;
+}
 
 interface IFormInput {
   reportId: string;
   n_processo: string;
   seguradora: string;
   natureza_do_evento: string;
+  optionsNaturezaDoEvento?: IOption[];
   carga_embarcada: string;
   valor_da_carga: string;
   status: string;
@@ -54,15 +70,17 @@ export default function Step2_Caracteristica_Sinistro({
   status,
   notas,
 }: IFormInput) {
+  const [valorCargaMask, setValorCargaMask] = useState(valor_da_carga);
+
   const schema = z.object({
-    seguradora: z.string().min(3, { message: "Informe o nome da seguradora" }),
-    natureza_do_evento: z
-      .string()
-      .min(3, { message: "Informe qual natureza do evento" }),
-    carga_embarcada: z
-      .string()
-      .min(3, { message: "Informe qual a carga embrancada" }),
-    valor_da_carga: z.string().min(3, { message: "informe o valor da Carga" }),
+    seguradora: z.string().min(3, { message: "❗Obrigatório" }),
+    // natureza_do_evento: z.string().min(3, { message: "❗natureza do evento" }),
+    optionsNaturezaDoEvento: z.object({
+      value: z.string(),
+      label: z.string(),
+    }),
+    carga_embarcada: z.string().min(3, { message: "❗Obrigatório" }),
+    valor_da_carga: z.string().min(3, { message: "❗Obrigatório" }),
     status: z.string().default("Concluído"),
     notas: z.string().optional(),
   });
@@ -74,156 +92,312 @@ export default function Step2_Caracteristica_Sinistro({
     handleSubmit,
     reset,
     formState,
+    control,
     formState: { errors },
   } = useForm<IFormValues>({
     resolver: zodResolver(schema),
   });
 
+  const { isSubmitting, isSubmitSuccessful } = formState;
+
+  useEffect(() => {
+    if (isSubmitting) {
+      console.log("loading...");
+    }
+    if (isSubmitSuccessful) {
+      console.log("Cadastrado efetuado com sucesso");
+    }
+  }, [isSubmitting, isSubmitSuccessful]);
+
   //Função para enviar os dados do formulário para o banco de dados update ou create
   const onSubmit: SubmitHandler<IFormValues> = async (data: IFormValues) => {
-      await usePostStep2ReportId(reportId, data as I2_Caracteristica_SinistroV2);
-      console.log("Dados Salvos", data);
+    try {
+      await usePostStep2ReportId(reportId, {
+        seguradora: data.seguradora,
+        natureza_do_evento: data.optionsNaturezaDoEvento.value,
+        carga_embarcada: data.carga_embarcada,
+        valor_da_carga: data.valor_da_carga,
+        status: data.status,
+        notas: data.notas,
+      } as I2_Caracteristica_Sinistro);
+      await usePostStep3ReportId(reportId, {
+        status: "Formalizando",
+      } as I3_Cronologia_Sinistro);
+    } catch (error) {
+      console.log("Erro ao cadastrar cliente segurado");
+    }
   };
 
-  // useEffect(() => {
-  //   if (reportId?.includes("_Update") && formState.isSubmitSuccessful) {
-  //     console.log("Formulário atualizado e enviado com sucesso");
-  //     //router.push(`/reports/register/steps/step3_Dados_do_Sinistro/${id}`);
-  //   } else if (formState.isSubmitSuccessful) {
-  //     reset();
-  //     console.log("Formulário enviado com sucesso");
-  //     router.push('/reports/list');
-  //     //router.push(`/reports/register/steps/step3_Dados_do_Sinistro/${id}`);
-  //   }
-  // }, [formState.isSubmitSuccessful]);
+  //Mascara para o campo valor da carga
+  function handleValorCarga(e: any) {
+    let value = e.target.value;
+    value = value.replace(/\D/g, "");
+    value = value.replace(/(\d{1,2})$/, ",$1");
+    value = value.replace(/(?=(\d{3})+(\D))\B/g, ".");
+    setValorCargaMask(value);
+  }
 
   return (
-    <Container key={n_processo}>
-      <Content>
-        <Heading
-          Title={
-            reportId?.includes("_Update")
-              ? "Atualizar Característica do Sinistro"
-              : "Cadastro Característica do Sinistro"
-          }
-          Subtitle={
-            reportId?.includes("_Update")
-              ? "Atualizar os campos abaixo para para prosseguir com o registro da proxima etapa"
-              : "Preencha os campos abaixo para para prosseguir com o registro da proxima etapa"
-          }
-        />
-        <BoxForm>
-          <TabsRoot defaultValue="TabCadastro">
-            <TabsList>
-              <TabsTrigger value="TabCadastro">
-                <h1>CADASTRO</h1>
-              </TabsTrigger>
+    <>
+      {isSubmitting && (
+        <BackdropSubmitting>
+          <div>
+            <Lottie
+              style={{ width: "550px", height: "350px" }}
+              animationData={animationLoding1to2}
+              loop={true}
+              autoplay={true}
+            />
+            <span>Liberando próxima etapa. Aguarde...</span>
+          </div>
+        </BackdropSubmitting>
+      )}
+      <Container key={n_processo}>
+        <Content>
+          <Heading
+            Title="2 - Característica do sinistro"
+            Subtitle="Preencha os campos essenciais para o cadastro da característica do sinistro: Seguradora responsável 
+            pelo seguro da carga, qual foi a natureza do evento que causou o sinistro, especifique qual era a carga que estava sendo transportada, 
+            informe o valor total da carga que foi danificada ou perdida no sinistro"
+            />
+          <BoxForm>
+            <TabsRoot defaultValue="TabCadastro">
+              <TabsList>
+                <TabsTrigger value="TabCadastro">
+                  <h1>CADASTRO</h1>
+                </TabsTrigger>
 
-              <TabsTrigger value="TabNotas">
-                <h1>NOTAS</h1>
-              </TabsTrigger>
-            </TabsList>
+                <TabsTrigger value="TabNotas">
+                  <h1>NOTAS</h1>
+                </TabsTrigger>
+              </TabsList>
 
-            <FormReport as="form" onSubmit={handleSubmit(onSubmit)}>
-              <TabsContent value="TabCadastro">
-                <ContentInputsCadastro>
-                  <InputText
-                    label="Seguradora"
-                    name="seguradora"
-                    disabled={status === "Revisando" ? true : false}
-                    defaultValue={seguradora}
-                    register={register}
-                    required
-                    error={errors.seguradora ? errors.seguradora.message : " "}
-                  />
-                  <InputText
-                    label="Natureza do Evento"
-                    name="natureza_do_evento"
-                    disabled={status === "Revisando" ? true : false}
-                    defaultValue={natureza_do_evento}
-                    register={register}
-                    required
-                    error={
-                      errors.natureza_do_evento
-                        ? errors.natureza_do_evento.message
-                        : " "
-                    }
-                  />
-                  <InputText
-                    label="Carga Embarcada"
-                    name="carga_embarcada"
-                    disabled={status === "Revisando" ? true : false}
-                    defaultValue={carga_embarcada}
-                    register={register}
-                    required
-                    error={
-                      errors.carga_embarcada
-                        ? errors.carga_embarcada.message
-                        : " "
-                    }
-                  />
-                  <InputText
-                    label="Valor da Carga"
-                    name="valor_da_carga"
-                    disabled={status === "Revisando" ? true : false}
-                    defaultValue={valor_da_carga}
-                    register={register}
-                    required
-                    error={
-                      errors.valor_da_carga
-                        ? errors.valor_da_carga.message
-                        : " "
-                    }
-                  />
-                </ContentInputsCadastro>
-              </TabsContent>
+              <FormReport as="form" onSubmit={handleSubmit(onSubmit)}>
+                <TabsContent value="TabCadastro">
+                  <ContentInputsCadastro>
+                    <div className="input__seguradora">
+                      <InputForms
+                        label="SEGURADORA:"
+                        name="seguradora"
+                        placeholder="Informe a seguradora"
+                        disabled={status === "Revisando" ? true : false}
+                        defaultValue={seguradora}
+                        register={register}
+                        required
+                        error={
+                          errors.seguradora ? errors.seguradora.message : " "
+                        }
+                      />
+                    </div>
 
-              <TabsContent value="TabNotas">
-                <ContentTextEditor>
-                  <TextAreaEditor
-                    name="notas"
-                    defaultValue={notas}
-                    placeholder="Digite aqui uma observação..."
-                    disabled={status === "Revisando" ? true : false}
-                    register={register}
-                    required={false}
-                    cols="1010"
-                    rows="15"
-                    error={
-                      errors.valor_da_carga ||
-                      errors.carga_embarcada ||
-                      errors.natureza_do_evento ||
-                      errors.seguradora
-                        ? "Favor verificar campos obrigatórios na guia CADASTRO"
-                        : " "
-                    }
-                  />
-                </ContentTextEditor>
-              </TabsContent>
+                    <div className="input__natureza_do_evento">
+                      <NewSelect2 label="NATUREZA DO EVENTO:">
+                        <Controller
+                          name="optionsNaturezaDoEvento"
+                          control={control}
+                          render={({ field }) => (
+                            <CreatableSelect
+                              {...field}
+                              options={[
+                                { value: "Roubo", label: "Roubo" },
+                                { value: "Furto", label: "Furto" },
+                                {
+                                  value: "Acidentes de trânsito",
+                                  label: "Acidentes de trânsito",
+                                },
+                                {
+                                  value: "Danos a terceiros",
+                                  label: "Danos a terceiros",
+                                },
+                                {
+                                  value: "Causas naturais",
+                                  label: "Causas naturais",
+                                },
+                              ]}
+                              placeholder="Selecione, ou crie uma evento"
+                              isSearchable={true}
+                              isClearable={true}
+                              //menuPlacement="top"
+                              required
+                              defaultValue={
+                                natureza_do_evento
+                                  ? {
+                                      value: natureza_do_evento,
+                                      label: natureza_do_evento,
+                                    }
+                                  : null
+                              }
+                              styles={{
+                                indicatorSeparator: (provided, state) => ({
+                                  ...provided,
+                                  position: "absolute",
+                                  top: "-23px",
+                                  bottom: "0",
+                                  height: "40px",
+                                  display: "none",
+                                }),
+                                clearIndicator: (provided, state) => ({
+                                  ...provided,
+                                  position: "absolute",
+                                  top: "2px",
+                                  width: "30px",
+                                  right: "35px",
+                                  color: "#AA2834",
+                                  ":hover": {
+                                    color: "#F75A68",
+                                  },
+                                  cursor: "pointer",
+                                  display: "none",
+                                }),
+                                indicatorsContainer: (provided, state) => ({
+                                  ...provided,
+                                  width: "40px",
+                                  height: "12px",
+                                  cursor: "pointer",
+                                  svg: {
+                                    color: "#0078BE",
+                                  },
+                                  ":hover": {
+                                    svg: {
+                                      color: "#3996E0",
+                                    },
+                                  },
+                                }),
 
-              <ContentButton>
-                {reportId?.includes("_Update") ? (
-                  <ButtonReport
-                    type="submit"
-                    disabled={status === "Revisando" ? true : false}
-                    TextTitle="Atualizar e Salvar"
-                    IconLeft={<FloppyDisk size={32} />}
-                    IconRight={<CaretRight size={32} />}
-                  />
+                                container: (provided, state) => ({
+                                  ...provided,
+                                  width: "245px",
+                                  height: "31px",
+                                  right: "1rem",
+                                }),
+                                control: (provided, state) => ({
+                                  ...provided,
+                                  border: "none",
+                                  boxShadow: "none",
+                                  backgroundColor: "transparent",
+                                  fontSize: "1.6rem",
+                                  color: "#121214",
+                                  fontWeight: "bold",
+                                  fontFamily: "__Inter_9c9965",
+                                  cursor: "pointer",
+                                }),
+                                option: (provided, state) => ({
+                                  ...provided,
+                                  color: state.isSelected ? "white" : "black",
+                                  backgroundColor: state.isSelected
+                                    ? "#3996E0"
+                                    : "white",
+                                  ":hover": {
+                                    backgroundImage:
+                                      "linear-gradient(90deg, rgba(228, 235, 254, 1) 0%, rgba(211, 243, 240, 1) 100%)",
+                                    color: "#121214",
+                                  },
+
+                                  fontSize: "1.4rem",
+                                  cursor: "pointer",
+                                }),
+                                placeholder: (provided, state) => ({
+                                  ...provided,
+                                  color: "#7C7C8A",
+                                  fontSize: "1.2rem",
+                                  fontWeight: "normal",
+                                }),
+                              }}
+                            />
+                          )}
+                        />
+                      </NewSelect2>
+                    </div>
+
+                    <div className="input__carga_embarcada">
+                      <InputForms
+                        label="CARGA EMBARCADA:"
+                        name="carga_embarcada"
+                        placeholder="Informe a carga embarcada"
+                        disabled={status === "Revisando" ? true : false}
+                        defaultValue={carga_embarcada}
+                        register={register}
+                        required
+                        error={
+                          errors.carga_embarcada
+                            ? errors.carga_embarcada.message
+                            : " "
+                        }
+                      />
+                    </div>
+
+                    <div className="input__valor_da_carga">
+                      <InputForms
+                        label="VALOR DA CARGA:"
+                        name="valor_da_carga"
+                        placeholder="Informe o valor da carga"
+                        disabled={status === "Revisando" ? true : false}
+                        value={valorCargaMask}
+                        defaultValue={valor_da_carga}
+                        onChange={handleValorCarga}
+                        register={register}
+                        required
+                        error={
+                          errors.valor_da_carga
+                            ? errors.valor_da_carga.message
+                            : " "
+                        }
+                      />
+                    </div>
+                  </ContentInputsCadastro>
+                </TabsContent>
+
+                <TabsContent value="TabNotas">
+                  <ContentTextEditor>
+                    <TextAreaEditor
+                      name="notas"
+                      defaultValue={notas}
+                      placeholder="Digite aqui uma observação..."
+                      disabled={status === "Revisando" ? true : false}
+                      register={register}
+                      required={false}
+                      cols="1010"
+                      rows="15"
+                      error={
+                        errors.valor_da_carga ||
+                        errors.carga_embarcada ||
+                        //errors.natureza_do_evento ||
+                        errors.seguradora
+                          ? "Favor verificar campos obrigatórios na guia CADASTRO"
+                          : " "
+                      }
+                    />
+                  </ContentTextEditor>
+                </TabsContent>
+
+                {status === "Revisando" ? (
+                  <div className="InfoStausRevisando">
+                    <h1>Aguarde! Relatório em processo de revisão</h1>
+                  </div>
+                ) : status === "Concluído" ? (
+                  <ContentButton>
+                    <ButtonReport
+                      type="submit"
+                      TextTitle="Atualizar"
+                      IconLeft={<NotePencil size={32} />}
+                      IconRight={<CaretRight size={32} />}
+                    />
+                  </ContentButton>
                 ) : (
-                  <ButtonReport
-                    type="submit"
-                    disabled={status === "Revisando" ? true : false}
-                    TextTitle="Cadastrar"
-                    IconLeft={<FloppyDisk size={32} />}
-                    IconRight={<CaretRight size={32} />}
-                  />
+                  <ContentButton>
+                    <ButtonReport
+                      type="submit"
+                      TextTitle="Cadastrar"
+                      IconLeft={<FloppyDisk size={32} />}
+                      IconRight={<CaretRight size={32} />}
+                    />
+                  </ContentButton>
                 )}
-              </ContentButton>
-            </FormReport>
-          </TabsRoot>
-        </BoxForm>
-      </Content>
-    </Container>
+              </FormReport>
+            </TabsRoot>
+          </BoxForm>
+        </Content>
+      </Container>
+    </>
   );
 }

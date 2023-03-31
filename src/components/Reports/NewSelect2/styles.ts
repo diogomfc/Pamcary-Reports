@@ -4,12 +4,12 @@ export const Container = styled.div``;
 
 export const TextInputContainer = styled.div`
   background-color: ${({ theme }) => theme.COLORS.GRAY_50};
-  padding: 1.2rem 1.2rem .5rem 1.2rem;
+  padding: 1.2rem .5rem .5rem 1.2rem;
   border-radius: 0.6rem;
   border: 1px solid ${({ theme }) => theme.COLORS.GRAY_100};
 
   display: flex;
-  gap: .5rem;
+  //gap: .5rem;
   flex-direction: column;
 
   //overflow: hidden;

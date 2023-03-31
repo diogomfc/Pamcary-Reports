@@ -1,9 +1,12 @@
 import styled from "styled-components";
 
-export const Container = styled.div``;
+export const Container = styled.div`
+ 
+`;
 export const Label = styled.label`
   font-size: 1.2rem;
   font-weight: 500;
+  font-family: "__Inter_9c9965", sans-serif;
   color: ${({ theme }) => theme.COLORS.GRAY_600};
   pointer-events: none;
   display: flex;
@@ -44,12 +47,19 @@ export const Input = styled.input`
   border: none;
   font-size: 1.6rem;
   font-weight: bold;
+  font-family: "__Inter_9c9965", sans-serif;
   color: ${({ theme }) => theme.COLORS.GRAY_700};
   transition: all 0.2s ease-in-out;
   width: 100%;
   height: 100%;
   padding: 0.3rem 0;
   margin: 0;
+
+  ::placeholder {
+    color: ${({ theme }) => theme.COLORS.GRAY_300};
+    font-weight: normal;
+    font-size: 1.2rem;
+  }
 
   &:focus {
     outline: none;

@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import {
+  useForm,
+  SubmitHandler,
+  Controller,
+  UseFormRegister,
+} from "react-hook-form";
+
+import Select from "react-select";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,12 +20,14 @@ import { Heading } from "@components/Reports/Heading";
 import { ButtonReport } from "@components/Reports/Button";
 import { TextAreaEditor } from "@components/Reports/TextArea";
 import { InputForms } from "@components/Reports/InputForms";
+import { SelectInputForms } from "@components/Reports/SelectInputForms";
+import { NewSelect2 } from "@components/Reports/NewSelect2";
 
-import { usePostStep1ReportId } from "@hooks/useApi/step1/usePostStep1ReportId";
-import { usePostStep2ReportId } from "@hooks/useApi/step2/usePostStep2ReportId";
+import { usePostStep4ReportId } from "@hooks/useApi/step4/usePostStep4ReportId";
+import { usePostStep3ReportId } from "@hooks/useApi/step3/usePostStep3ReportId";
 
-import { I1_Cliente_Segurado } from "src/@types/typesReport";
-import { I2_Caracteristica_Sinistro } from "src/@types/typesReport";
+import { I4_Carregamento } from "src/@types/typesReport";
+import { I3_Cronologia_Sinistro } from "src/@types/typesReport";
 
 import {
   Container,
@@ -30,65 +39,60 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
+  ContentInputsCadastro,
   ContentTextEditor,
   BackdropSubmitting,
-  ContentInputs,
 } from "./styles";
-
 
 interface IFormInput {
   reportId: string;
   n_processo: string;
-  cliente: string;
-  cnpj: string;
-  logradouro: string; //endereço
-  bairro: string;
-  localidade: string; //cidade
-  uf: string; //estado
-  cep: string;
-  telefone: string;
-  celular: string;
-  email: string;
-  contato: string;
   status: string;
   notas: string;
-  onClickButton?: () => void;
+  cep_sinistro: string;
+  logradouro_sinistro: string;
+  bairro_sinistro: string;
+  localidade_sinistro: string;
+  uf_sinistro: string;
+  data_hora_sinistro: string;
+  data_hora_acionamento_agente: string;
+  data_hora_chegada_agente: string;
+  data_hora_comunicacao_cia: string;
+  comunicante: string;
+  agente_acionado: string;
 }
 
-export default function Step1_Cliente_Segurado({
+export default function Step3_Cronologia_Sinistro({
   reportId,
   n_processo,
-  cliente,
-  cnpj,
-  logradouro,
-  bairro,
-  localidade,
-  uf,
-  cep,
-  telefone,
-  celular,
-  email,
-  contato,
   status,
   notas,
+  cep_sinistro,
+  logradouro_sinistro,
+  bairro_sinistro,
+  localidade_sinistro,
+  uf_sinistro,
+  data_hora_sinistro,
+  data_hora_acionamento_agente,
+  data_hora_chegada_agente,
+  data_hora_comunicacao_cia,
+  comunicante,
+  agente_acionado,
 }: IFormInput) {
   const schemaCadastro = z.object({
-    cliente: z
-      .string()
-      .min(3, { message: "Informe o nome do cliente" })
-      .default(cliente),
-    cnpj: z.string().min(18, { message: "❗cnpj" }).default(cnpj),
-    logradouro: z.string().min(3, { message: "❗endereço" }),
-    bairro: z.string().min(3, { message: "❗bairro" }),
-    localidade: z.string().min(3, { message: "❗cidade" }),
-    uf: z.string().min(2, { message: "❗uf" }),
-    cep: z.string().min(8, { message: "❗cep" }),
-    telefone: z.string().min(8, { message: "❗telefone" }),
-    celular: z.string().min(8, { message: "❗telefone" }),
-    email: z.string().min(3, { message: "❗email" }),
-    contato: z.string().min(3, { message: "❗contato" }),
     status: z.string().default("Concluído"),
     notas: z.string().optional(),
+    cep_sinistro: z.string().min(8, { message: "❗cep" }),
+    logradouro_sinistro: z.string().min(3, { message: "❗endereço" }),
+    bairro_sinistro: z.string().min(3, { message: "❗bairro" }),
+    localidade_sinistro: z.string().min(3, { message: "❗cidade" }),
+    uf_sinistro: z.string().min(2, { message: "❗uf" }),
+    data_hora_sinistro: z.string().min(3, { message: "❗" }),
+    data_hora_acionamento_agente: z.string().min(3, { message: "❗" }),
+    data_hora_chegada_agente: z.string().min(3, { message: "❗" }),
+    data_hora_comunicacao_cia: z.string().min(3, { message: "❗" }),
+    comunicante: z.string().min(3, { message: "❗comunicante" }),
+    agente_acionado: z.string().min(3, { message: "❗agente" }),
   });
 
   type IFormValues = z.infer<typeof schemaCadastro>;
@@ -118,13 +122,14 @@ export default function Step1_Cliente_Segurado({
 
   const onSubmit: SubmitHandler<IFormValues> = async (data: IFormValues) => {
     try {
-      await usePostStep1ReportId(reportId, data as I1_Cliente_Segurado);
-      await usePostStep2ReportId(reportId, {
+      await usePostStep3ReportId(reportId, data as I3_Cronologia_Sinistro);
+      await usePostStep4ReportId(reportId, {
         status: "Formalizando",
-      } as I2_Caracteristica_Sinistro);
+      } as I4_Carregamento);
     } catch (error) {
       console.log("Erro ao cadastrar cliente segurado");
     }
+    console.log(data);
   };
 
   function handleBlurCep(e: any) {
@@ -138,11 +143,11 @@ export default function Step1_Cliente_Segurado({
     fetch(`https://viacep.com.br/ws/${cep}/json/`)
       .then((res) => res.json())
       .then((data) => {
-        setValue("logradouro", data?.logradouro);
-        setValue("bairro", data?.bairro);
-        setValue("localidade", data?.localidade);
-        setValue("uf", data?.uf);
-        setFocus("contato")
+        setValue("logradouro_sinistro", data?.logradouro);
+        setValue("bairro_sinistro", data?.bairro);
+        setValue("localidade_sinistro", data?.localidade);
+        setValue("uf_sinistro", data?.uf);
+        setFocus("comunicante")
         reset({
           ...data,
           cep: value,
@@ -152,7 +157,7 @@ export default function Step1_Cliente_Segurado({
 
   return (
     <>
-      {isSubmitting && (
+     {isSubmitting && (
         <BackdropSubmitting>
           <div>
             <Lottie
@@ -168,9 +173,9 @@ export default function Step1_Cliente_Segurado({
       <Container key={n_processo}>
         <Content>
           <Heading
-            Title="1 - Cliente segurado"
-            Subtitle="Preencha os campos essenciais para o cadastro do cliente 
-            segurado: Nome ou razão social, CNPJ, endereço completo, um contato com celular, telefone e um e-mail válido. "
+            Title="3- Cronologia do Sinistro"
+            Subtitle="Preencha os campos essenciais para o cadastro da cronologia do sinistro: Localização do sinistro, data e hora da comunicação, 
+            data e hora do sinistro, agente acionado e data e hora da chegada ao local."
           />
           <BoxForm>
             <TabsRoot defaultValue="TabCadastro">
@@ -186,37 +191,13 @@ export default function Step1_Cliente_Segurado({
 
               <FormReport as="form" onSubmit={handleSubmit(onSubmit)}>
                 <TabsContent value="TabCadastro">
-                  <ContentInputs>
-                    <div className="input _name">
-                      <InputForms
-                        label="CLIENTE SEGURADO:"
-                        name="cliente"
-                        placeholder="Informe o nome do cliente"
-                        defaultValue={cliente}
-                        disabled={true}
-                        register={register}
-                        required={true}
-                        error={errors.cliente ? errors.cliente.message : " "}
-                      />
-                    </div>
-                    <div className="input _cnpj">
-                      <InputForms
-                        label="CNPJ:"
-                        name="cnpj"
-                        placeholder="Informe o CNPJ"
-                        defaultValue={cnpj}
-                        disabled={true}
-                        register={register}
-                        required={true}
-                        error={errors.cnpj ? errors.cnpj.message : " "}
-                      />
-                    </div>
+                  <ContentInputsCadastro>
 
-                    <div className="input _cep">
+                    <div className="input__cep">
                       <InputForms
                         onBlur={handleBlurCep}
                         label="⚡️ CEP:"
-                        name="cep"
+                        name="cep_sinistro"
                         placeholder="Informe o CEP"
                         disabled={
                           status === "Revisando" ||
@@ -226,16 +207,16 @@ export default function Step1_Cliente_Segurado({
                             ? true
                             : false
                         }
-                        defaultValue={cep}
+                        defaultValue={cep_sinistro}
                         register={register}
                         required={true}
-                        error={errors.cep ? errors.cep.message : " "}
+                        error={errors.cep_sinistro ? errors.cep_sinistro.message : " "}
                       />
                     </div>
-                    <div className="input _endereco">
+                    <div className="input__endereco">
                       <InputForms
                         label="ENDEREÇO:"
-                        name="logradouro"
+                        name="logradouro_sinistro"
                         placeholder="Informe o endereço"
                         disabled={
                           status === "Revisando" ||
@@ -245,18 +226,18 @@ export default function Step1_Cliente_Segurado({
                             ? true
                             : false
                         }
-                        defaultValue={logradouro}
+                        defaultValue={logradouro_sinistro}
                         register={register}
                         required={true}
                         error={
-                          errors.logradouro ? errors.logradouro.message : " "
+                          errors.logradouro_sinistro ? errors.logradouro_sinistro.message : " "
                         }
                       />
                     </div>
-                    <div className="input _bairro">
+                    <div className="input__bairro">
                       <InputForms
                         label="BAIRRO:"
-                        name="bairro"
+                        name="bairro_sinistro"
                         placeholder="Informe o bairro"
                         spellcheck={false}
                         disabled={
@@ -267,17 +248,17 @@ export default function Step1_Cliente_Segurado({
                             ? true
                             : false
                         }
-                        defaultValue={bairro}
+                        defaultValue={bairro_sinistro}
                         register={register}
                         required={true}
-                        error={errors.bairro ? errors.bairro.message : " "}
+                        error={errors.bairro_sinistro ? errors.bairro_sinistro.message : " "}
                       />
                     </div>
-                    <div className="input _cidade">
+                    <div className="input__cidade">
                       <InputForms
                         label="CIDADE:"
                         placeholder="Informe a cidade"
-                        name="localidade"
+                        name="localidade_sinistro"
                         disabled={
                           status === "Revisando" ||
                           status === "Aprovado" ||
@@ -286,18 +267,18 @@ export default function Step1_Cliente_Segurado({
                             ? true
                             : false
                         }
-                        defaultValue={localidade}
+                        defaultValue={localidade_sinistro}
                         register={register}
                         required={true}
                         error={
-                          errors.localidade ? errors.localidade.message : " "
+                          errors.localidade_sinistro ? errors.localidade_sinistro.message : " "
                         }
                       />
                     </div>
-                    <div className="input _uf">
+                    <div className="input__uf">
                       <InputForms
                         label="ESTADO:"
-                        name="uf"
+                        name="uf_sinistro"
                         placeholder="Informe o estado"
                         disabled={
                           status === "Revisando" ||
@@ -307,122 +288,123 @@ export default function Step1_Cliente_Segurado({
                             ? true
                             : false
                         }
-                        defaultValue={uf}
+                        defaultValue={uf_sinistro}
                         register={register}
                         required={true}
-                        error={errors.uf ? errors.uf.message : " "}
+                        error={errors.uf_sinistro ? errors.uf_sinistro.message : " "}
                       />
                     </div>
-                  
-                    <div className="input _contato">
+
+                    <div className="input__comunicante">
                       <InputForms
-                        label="CONTATO:"
-                        name="contato"
-                        placeholder="Informe um contato"
-                        disabled={
-                          status === "Revisando" ||
-                          status === "Aprovado" ||
-                          status === "Emitido" ||
-                          status === "Cancelado"
-                            ? true
-                            : false
-                        }
-                        defaultValue={contato}
+                        label="COMUNICANTE:"
+                        name="comunicante"
+                        placeholder="Informe o comunicante"
+                        defaultValue={comunicante}
                         register={register}
                         required={true}
-                        error={errors.contato ? errors.contato.message : " "}
+                        error={errors.comunicante ? errors.comunicante.message : " "}
                       />
                     </div>
-                    <div className="input _celular">
+                    <div className="input__data_hora_comunicacao_cia">
                       <InputForms
-                        label="CELULAR:"
-                        name="celular"
-                        placeholder="Informe um celular com DDD"
-                        disabled={
-                          status === "Revisando" ||
-                          status === "Aprovado" ||
-                          status === "Emitido" ||
-                          status === "Cancelado"
-                            ? true
-                            : false
-                        }
-                        defaultValue={celular}
+                        label="DATA E HORA DA COMUNICAÇÃO:"
+                        name="data_hora_comunicacao_cia"
+                        defaultValue={data_hora_comunicacao_cia}
                         register={register}
                         required={true}
-                        error={errors.celular ? errors.celular.message : " "}
+                        error={
+                          errors.data_hora_comunicacao_cia
+                            ? errors.data_hora_comunicacao_cia.message
+                            : " "
+                        }
+                        type="datetime-local"
                       />
+
                     </div>
-                    <div className="input _telefone">
+                    <div className="input__data_hora_sinistro"> 
                       <InputForms
-                        label="TELEFONE:"
-                        name="telefone"
-                        placeholder="Informe um telefone com DDD"
-                        disabled={
-                          status === "Revisando" ||
-                          status === "Aprovado" ||
-                          status === "Emitido" ||
-                          status === "Cancelado"
-                            ? true
-                            : false
-                        }
-                        defaultValue={telefone}
+                        label="DATA E HORA DO SINISTRO:"
+                        name="data_hora_sinistro"
+                        defaultValue={data_hora_sinistro}
                         register={register}
                         required={true}
-                        error={errors.telefone ? errors.telefone.message : " "}
+                        error={
+                          errors.data_hora_sinistro ? errors.data_hora_sinistro.message : " "
+                        }
+                        type="datetime-local"
                       />
                     </div>
-                    <div className="input _email">
+
+
+                    <div className="input__agente_acionado"> 
                       <InputForms
-                        label="EMAIL:"
-                        placeholder="Informe um email válido"
-                        name="email"
-                        disabled={
-                          status === "Revisando" ||
-                          status === "Aprovado" ||
-                          status === "Emitido" ||
-                          status === "Cancelado"
-                            ? true
-                            : false
-                        }
-                        defaultValue={email}
-                        type="email"
+                        label="AGENTE ACIONADO:"
+                        name="agente_acionado"
+                        placeholder="Informe o agente acionado"
+                        defaultValue={agente_acionado}
                         register={register}
                         required={true}
-                        error={errors.email ? errors.email.message : " "}
+                        error={errors.agente_acionado ? errors.agente_acionado.message : " "} 
                       />
                     </div>
-                  </ContentInputs>
+                    <div className="input__data_hora_acionamento_agente"> 
+                      <InputForms
+                        label="DATA E HORA DO ACIONAMENTO:"
+                        name="data_hora_acionamento_agente"
+                        defaultValue={data_hora_acionamento_agente}
+                        register={register}
+                        required={true}
+                        error={
+                          errors.data_hora_acionamento_agente
+                            ? errors.data_hora_acionamento_agente.message
+                            : " "
+                        }
+                        type="datetime-local"
+                      />
+                    </div>
+                    <div className="input__data_hora_chegada_agente"> 
+                      <InputForms
+                        label="DATA E HORA DA CHEGADA:"
+                        name="data_hora_chegada_agente"
+                        defaultValue={data_hora_chegada_agente}
+                        register={register}
+                        required={true}
+                        error={
+                          errors.data_hora_chegada_agente
+                            ? errors.data_hora_chegada_agente.message
+                            : " "
+                        }
+                        type="datetime-local"
+                      />
+                    </div>
+
+                  </ContentInputsCadastro>
                 </TabsContent>
 
                 <TabsContent value="TabNotas">
                   <ContentTextEditor>
                     <TextAreaEditor
-                      defaultValue={notas}
                       name="notas"
-                      disabled={
-                        status === "Revisando" ||
-                        status === "Aprovado" ||
-                        status === "Emitido" ||
-                        status === "Cancelado"
-                          ? true
-                          : false
-                      }
+                      defaultValue={notas}
                       placeholder="Digite aqui uma observação..."
+                      disabled={status === "Revisando" ? true : false}
                       register={register}
                       required={false}
                       cols="1010"
                       rows="15"
                       error={
-                        errors.cliente ||
-                        errors.cnpj ||
-                        errors.logradouro ||
-                        errors.bairro ||
-                        errors.localidade ||
-                        errors.uf ||
-                        errors.cep ||
-                        errors.telefone ||
-                        errors.email ||
-                        errors.contato
+                        errors.cep_sinistro ||
+                        errors.logradouro_sinistro ||
+                        errors.bairro_sinistro ||
+                        errors.localidade_sinistro ||
+                        errors.uf_sinistro ||
+                        errors.comunicante ||
+                        errors.data_hora_comunicacao_cia ||
+                        errors.data_hora_sinistro ||
+                        errors.agente_acionado ||
+                        errors.data_hora_acionamento_agente ||
+                        errors.data_hora_chegada_agente
                           ? "Favor verificar campos obrigatórios na guia CADASTRO"
                           : " "
                       }
@@ -453,7 +435,6 @@ export default function Step1_Cliente_Segurado({
                   </ContentButton>
                 )}
               </FormReport>
-
             </TabsRoot>
           </BoxForm>
         </Content>
@@ -461,26 +442,3 @@ export default function Step1_Cliente_Segurado({
     </>
   );
 }
-
-// : isSubmitSuccessful ? (
-//   <BackdropSubmitSuccessful>
-//     <div>
-//       <Lottie
-//         style={{ width: "100px", height: "100px" }}
-//         animationData={animationUnlockedNextStep}
-//         loop={true}
-//         autoplay={true}
-//       />
-//       <h1>Nova etapa desbloqueada para preenchimento</h1>
-//       <ButtonReport
-//         onClick={onClickButton}
-//         TextTitle="Característica do Sinistro"
-//         IconLeft={"Etapa 2"}
-//         IconRight={<CaretRight size={32} />}
-//       />
-//       <Link href={`/reports/list`} passHref>
-//         <span>Voltar para listagem de reports</span>
-//       </Link>
-//     </div>
-//   </BackdropSubmitSuccessful>
-// )

@@ -57,9 +57,9 @@ export interface I1_Cliente_Segurado{
 }
 
 export interface I2_Caracteristica_Sinistro{
-  userId: string;
-  n_processo: string;
-  n_step: string;
+  userId?: string;
+  n_processo?: string;
+  n_step?: string;
   status: string;
   seguradora: string;
   natureza_do_evento: string;
@@ -72,13 +72,23 @@ export interface I3_Cronologia_Sinistro {
   n_processo?: string;
   n_step?: string;
   status: string;
+  notas: string;
+
+  agente_acionado: string;
   comunicante: string;
-  data_hora_comunicacao_cia: string;
+
+  //local_sinistro: string;
+  cep_sinistro: string;
+  logradouro_sinistro: string; //endereco
+  bairro_sinistro: string;
+  localidade_sinistro: string; //cidade
+  uf_sinistro: string; // estado
+
   data_hora_sinistro: string;
-  local_sinistro: string;
+  data_hora_comunicacao_cia: string;
   data_hora_acionamento_agente: string;
   data_hora_chegada_agente: string;
-  notas: string;
+
 }
 export interface I4_Carregamento {
   userId?: string;

@@ -49,6 +49,8 @@ export const SelectContent = styled.select`
 export const Option = styled.option`
   background-color: ${({ theme }) => theme.COLORS.GRAY_50};
   color: ${({ theme }) => theme.COLORS.GRAY_400};
+
+
 `
 
 export const Label = styled.label`

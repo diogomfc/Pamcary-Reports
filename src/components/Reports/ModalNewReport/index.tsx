@@ -6,7 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { CaretRight, FilePlus, LockOpen } from "phosphor-react";
 
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+
+import Select from "react-select";
+
 
 import { ButtonReport } from "@components/Reports/Button";
 import { Modal } from "@components/Reports/Modal";
@@ -29,10 +32,16 @@ import {
   FormReport,
   ContentInputs,
 } from "./styles";
+import { NewSelect2 } from "../NewSelect2";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface IOption {
+  readonly value: string;
+  readonly label: string;
 }
 
 export function ModalNewReport({ isOpen, onClose }: ModalProps) {
@@ -48,11 +57,23 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
   const schemaCadastroReport = z.object({
     cnpj: z.string().min(18, { message: "❗cnpj" }),
     cliente: z.string(),
-    status: z.string(),
+    //status: z.string(),
+    statusOptions: z.object({
+      value: z.string(),
+      label: z.string(),
+    }),
     created_in: z.string().default(dateNow),
     finished_in: z.string(),
-    revisor: z.string(),
-    manager: z.string(),
+    //revisor: z.string(),
+    revisorOptions: z.object({
+      value: z.string(),
+      label: z.string(),
+    }),
+    //manager: z.string(),
+    managerOptions: z.object({
+      value: z.string(),
+      label: z.string(),
+    }),
   });
 
   const {
@@ -62,6 +83,7 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
     formState,
     setValue,
     setFocus,
+    control,
     formState: { errors },
   } = useForm<IFormValues>({
     resolver: zodResolver(schemaCadastroReport),
@@ -83,7 +105,15 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
 
   const onSubmit: SubmitHandler<IFormValues> = async (data: IFormValues) => {
     try {
-      await usePostReportsUser(data as IReportsV2, userProfile[0] as IUsers);
+      await usePostReportsUser({
+        cnpj: data.cnpj,
+        cliente: data.cliente,
+        status: data.statusOptions.value,
+        created_in: data.created_in,
+        finished_in: data.finished_in,
+        revisor: data.revisorOptions.value,
+        manager: data.managerOptions.value,
+      } as IReportsV2, userProfile[0] as IUsers);
     } catch (error) {
       console.log("Erro ao cadastrar cliente segurado");
     }
@@ -101,7 +131,7 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
       .then((data) => {
         console.log(data);
         setValue("cliente", data?.razao_social);
-        setFocus("status");
+        setFocus("statusOptions");
         reset({
           ...data,
           cnpj: value,
@@ -115,10 +145,19 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
       {
         cnpj: "",
         cliente: "",
-        status: "",
+        statusOptions:{
+          value: "",
+          label: "",
+        },
         finished_in: "",
-        revisor: "",
-        manager: "",
+        revisorOptions:{
+          value: "",
+          label: "",
+        },
+        managerOptions: {
+          value: "",
+          label: "",
+        },
       },
     );
   };
@@ -151,8 +190,9 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
               <div className="_cnpj">
                 <InputForms
                   onBlur={handleBlurCnpj}
-                  label="⚡️ CNPJ"
+                  label="⚡️ CNPJ:"
                   name="cnpj"
+                  placeholder="Informe o CNPJ do cliente segurado"
                   register={register}
                   required={true}
                   error={errors.cnpj ? errors.cnpj.message : " "}
@@ -160,8 +200,9 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
               </div>
               <div className="_cliente">
                 <InputForms
-                  label="CLIENTE/SEGURADO:"
+                  label="CLIENTE SEGURADO:"
                   name="cliente"
+                  placeholder="Informe o nome do cliente segurado"
                   disabled={false}
                   register={register}
                   required={true}
@@ -169,7 +210,7 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
                 />
               </div>
               <div className="_status">
-                <SelectInputForms
+                {/* <SelectInputForms
                   options={[
                     { value: "Formalizando", label: "Formalizando" },
                     { value: "Revisando", label: "Revisando" },
@@ -182,7 +223,119 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
                   register={register}
                   required
                   error={errors.status?.message}
-                />
+                /> */}
+                 <NewSelect2 label="STATUS:">
+                        <Controller
+                          name="statusOptions"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              options={[
+                                { value: "Formalizando", label: "Formalizando" },
+                                { value: "Revisando", label: "Revisando" },
+                                { value: "Aprovado", label: "Aprovado" },
+                                { value: "Emitido", label: "Emitido" },
+                                { value: "Cancelado", label: "Cancelado" },
+                              ]}
+                              placeholder="Selecione.."
+                              isSearchable={false}
+                              isClearable={false}
+                              //menuPlacement="top"
+                              required
+                              // defaultValue={
+                              //   status
+                              //     ? {
+                              //         value: status,
+                              //         label: status,
+                              //       }
+                              //     : null
+                              // }
+                              styles={{
+                                indicatorSeparator: (provided, state) => ({
+                                  ...provided,
+                                  position: "absolute",
+                                  top: "-23px",
+                                  bottom: "0",
+                                  display: "none",
+                                  height: "40px",
+                                }),
+                                clearIndicator: (provided, state) => ({
+                                  ...provided,
+                                  position: "absolute",
+                                  top: "2px",
+                                  width: "30px",
+                                  right: "35px",
+                                  color: "#AA2834",
+                                  ":hover": {
+                                    color: "#F75A68",
+                                  },
+                                  cursor: "pointer",
+                                  display: 'none'
+                                }),
+                                indicatorsContainer: (provided, state) => ({
+                                  ...provided,
+                                  width: "40px",
+                                  height: "12px",
+                                  cursor: "pointer",
+                                  svg: {
+                                    color: "#0078BE",
+                                  },
+                                  ":hover": {
+                                    svg: {
+                                      color: "#3996E0",
+                                    },
+                                  },
+                                }),
+                                
+                                container: (provided, state) => ({
+                                  ...provided,
+                                  width: "245px",
+                                  height: "31px",
+                                  //right: "1rem",
+                                  //left: "1rem",
+                                }),
+                                control: (provided, state) => ({
+                                  ...provided,
+                                  position: "relative",
+                                  width: "260px",
+                                  right: "1rem",
+                                 
+                                  border: "none",
+                                  boxShadow: "none",
+                                  backgroundColor: "transparent",
+                                  fontSize: "1.6rem",
+                                  color: "#121214",
+                                  fontWeight: "bold",
+                                  fontFamily: "__Inter_9c9965",
+                                  cursor: "pointer",
+                                }),
+                                option: (provided, state) => ({
+                                  ...provided,
+                                  color: state.isSelected ? "white" : "black",
+                                  backgroundColor: state.isSelected
+                                    ? "#3996E0"
+                                    : "white",
+                                  ":hover": {
+                                    backgroundImage:
+                                      "linear-gradient(90deg, rgba(228, 235, 254, 1) 0%, rgba(211, 243, 240, 1) 100%)",
+                                    color: "#121214",
+                                  },
+
+                                  fontSize: "1.4rem",
+                                  cursor: "pointer",
+                                }),
+                                placeholder: (provided, state) => ({
+                                  ...provided,
+                                  color: "#7C7C8A",
+                                  fontSize: "1.2rem",
+                                  fontWeight: "normal",
+                                }),
+                              }}
+                            />
+                          )}
+                        />
+                 </NewSelect2>
               </div>
               <div className="_created_in">
                 <InputForms
@@ -211,7 +364,7 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
                 <div className="TextName">{userProfile[0]?.name}</div>
               </div>
               <div className="_revisor">
-                <SelectInputForms
+                {/* <SelectInputForms
                   options={allUsers
                     ?.filter((user) => user.perfil === "Revisor")
                     .map((revisor) => {
@@ -225,10 +378,109 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
                   register={register}
                   required
                   error={errors.revisor?.message}
-                />
+                /> */}
+                <NewSelect2 label="ANALISTA DE REVISÃO:">
+                        <Controller
+                          name="revisorOptions"
+                          control={control}
+                          render={({ field }) => (
+                            <Select 
+                              {...field}
+                              options={allUsers
+                                ?.filter((user) => user.perfil === "Revisor")
+                                .map((revisor) => {
+                                  return {
+                                    value: revisor.name,
+                                    label: revisor.name,
+                                  };
+                                })}
+                              placeholder="Selecione.."
+                              isSearchable={false}
+                              isClearable={false}
+                              required
+                              styles={{
+                                indicatorSeparator: (provided, state) => ({
+                                  ...provided,
+                                  position: "absolute",
+                                  top: "-23px",
+                                  bottom: "0",
+                                  height: "40px",
+                                  display: "none",
+                                }),
+                                clearIndicator: (provided, state) => ({
+                                  ...provided,
+                                  position: "absolute",
+                                  top: "2px",
+                                  width: "30px",
+                                  right: "35px",
+                                  color: "#AA2834",
+                                  ":hover": {
+                                    color: "#F75A68",
+                                  },
+                                  cursor: "pointer",
+                                  display: 'none'
+                                }),
+                                indicatorsContainer: (provided, state) => ({
+                                  ...provided,
+                                  width: "40px",
+                                  height: "12px",
+                                  cursor: "pointer",
+                                  svg: {
+                                    color: "#0078BE",
+                                  },
+                                  ":hover": {
+                                    svg: {
+                                      color: "#3996E0",
+                                    },
+                                  },
+                                }),
+                                
+                                container: (provided, state) => ({
+                                  ...provided,
+                                  width: "245px",
+                                  height: "31px",
+                                  right: "1rem",
+                                }),
+                                control: (provided, state) => ({
+                                  ...provided,
+                                  border: "none",
+                                  boxShadow: "none",
+                                  backgroundColor: "transparent",
+                                  fontSize: "1.6rem",
+                                  color: "#121214",
+                                  fontWeight: "bold",
+                                  fontFamily: "__Inter_9c9965",
+                                  cursor: "pointer",
+                                }),
+                                option: (provided, state) => ({
+                                  ...provided,
+                                  color: state.isSelected ? "white" : "black",
+                                  backgroundColor: state.isSelected
+                                    ? "#3996E0"
+                                    : "white",
+                                  ":hover": {
+                                    backgroundImage:
+                                      "linear-gradient(90deg, rgba(228, 235, 254, 1) 0%, rgba(211, 243, 240, 1) 100%)",
+                                    color: "#121214",
+                                  },
+
+                                  fontSize: "1.4rem",
+                                  cursor: "pointer",
+                                }),
+                                placeholder: (provided, state) => ({
+                                  ...provided,
+                                  color: "#7C7C8A",
+                                  fontSize: "1.2rem",
+                                  fontWeight: "normal",
+                                }),
+                              }}
+                            />
+                          )}
+                        />
+                  </NewSelect2>
               </div>
               <div className="_supervisor">
-                <SelectInputForms
+                {/* <SelectInputForms
                   options={allUsers
                     ?.filter((user) => user.perfil === "Supervisor")
                     .map((manager) => {
@@ -242,7 +494,109 @@ export function ModalNewReport({ isOpen, onClose }: ModalProps) {
                   register={register}
                   required
                   error={errors.manager?.message}
-                />
+                /> */}
+
+                <NewSelect2 label="GESTOR RESPONSÁVEL:">
+                        <Controller
+                          name="managerOptions"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              options={allUsers
+                                ?.filter((user) => user.perfil === "Supervisor")
+                                .map((manager) => {
+                                  return {
+                                    value: manager.name,
+                                    label: manager.name,
+                                  };
+                                })}
+                              placeholder="Selecione.."
+                              isSearchable={false}
+                              isClearable={false}
+                              required
+                              styles={{
+                                indicatorSeparator: (provided, state) => ({
+                                  ...provided,
+                                  position: "absolute",
+                                  top: "-23px",
+                                  bottom: "0",
+                                  height: "40px",
+                                  display: "none",
+                                }),
+                                clearIndicator: (provided, state) => ({
+                                  ...provided,
+                                  position: "absolute",
+                                  top: "2px",
+                                  width: "30px",
+                                  right: "35px",
+                                  color: "#AA2834",
+                                  ":hover": {
+                                    color: "#F75A68",
+                                  },
+                                  cursor: "pointer",
+                                  display: 'none'
+                                }),
+                                indicatorsContainer: (provided, state) => ({
+                                  ...provided,
+                                  width: "40px",
+                                  height: "12px",
+                                  cursor: "pointer",
+                                  svg: {
+                                    color: "#0078BE",
+                                  },
+                                  ":hover": {
+                                    svg: {
+                                      color: "#3996E0",
+                                    },
+                                  },
+                                }),
+                                
+                                container: (provided, state) => ({
+                                  ...provided,
+                                  width: "245px",
+                                  height: "31px",
+                                  right: "1rem",
+                                }),
+                                control: (provided, state) => ({
+                                  ...provided,
+                                  border: "none",
+                                  boxShadow: "none",
+                                  backgroundColor: "transparent",
+                                  fontSize: "1.6rem",
+                                  color: "#121214",
+                                  fontWeight: "bold",
+                                  fontFamily: "__Inter_9c9965",
+                                  cursor: "pointer",
+                                }),
+                                option: (provided, state) => ({
+                                  ...provided,
+                                  color: state.isSelected ? "white" : "black",
+                                  backgroundColor: state.isSelected
+                                    ? "#3996E0"
+                                    : "white",
+                                  ":hover": {
+                                    backgroundImage:
+                                      "linear-gradient(90deg, rgba(228, 235, 254, 1) 0%, rgba(211, 243, 240, 1) 100%)",
+                                    color: "#121214",
+                                  },
+
+                                  fontSize: "1.4rem",
+                                  cursor: "pointer",
+                                }),
+                                placeholder: (provided, state) => ({
+                                  ...provided,
+                                  color: "#7C7C8A",
+                                  fontSize: "1.2rem",
+                                  fontWeight: "normal",
+                                }),
+                              }}
+                            />
+                          )}
+                        />
+                  </NewSelect2>
+
+
               </div>
             </ContentInputs>
 

@@ -16,7 +16,8 @@ export function SidebarSteps({ children }: SidebarStepsProps) {
   return (
     <Container>
       <HeaderTitle>
-        <Title>CONFIRA OS PRÓXIMOS PASSOS</Title>
+        {/* <Title>CONFIRA OS PRÓXIMOS PASSOS</Title> */}
+        <Title>RELATÓRIO DE AVERIGUAÇÃO</Title>
       </HeaderTitle>
       <StepsReport>
         <LineMultiSteps>

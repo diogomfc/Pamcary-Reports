@@ -90,17 +90,40 @@ export const ContentInputsCadastro = styled.div`
   .input{ 
   }
 
-  .input__seguradora {
-    grid-column: 1 / span 6;
+  .input__cep{
+    grid-column: 1 / span 1;
   }
-  .input__natureza_do_evento {
+  .input__endereco{
+    grid-column: 2 / span 2;
+  }
+  .input__bairro{
+    grid-column: 4 / span 2;
+  }
+  .input__cidade{
+    grid-column: 6 / span 2;
+  }
+  .input__uf{
+    grid-column: 8 / span 1;
+  }
+
+  .input__comunicante{
+    grid-column: 1 / span 4;
+  }
+  .input__data_hora_comunicacao_cia{
+    grid-column: 5 / span 2;
+  }
+  .input__data_hora_sinistro{
     grid-column: 7 / span 2;
   }
-  .input__carga_embarcada {
-    grid-column: 1 / span 6;
+
+  .input__agente_acionado{
+    grid-column: 1 / span 4;
   }
-  .input__valor_da_carga {
-    grid-column: 7  / span 2;
+  .input__data_hora_acionamento_agente{
+    grid-column: 5 / span 2;
+  }
+  .input__data_hora_chegada_agente{
+    grid-column: 7 / span 2;
   }
 `;
 
